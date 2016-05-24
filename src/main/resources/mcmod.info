@@ -1,0 +1,16 @@
+[
+{
+  "modid": "tombmanygraves",
+  "name": "Tomb Many Graves",
+  "description": "Stores your stuff when you bite the dust.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["M4thG33k"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
