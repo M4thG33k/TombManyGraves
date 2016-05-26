@@ -2,6 +2,7 @@ package com.m4thg33k.tombmanygraves.core.proxy;
 
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
+import com.m4thg33k.tombmanygraves.blocks.itemblocks.ModItemBlocks;
 import com.m4thg33k.tombmanygraves.core.events.TombManyGravesCommonEvents;
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
 import com.m4thg33k.tombmanygraves.gui.TombManyGravesGuiHandler;
@@ -24,6 +25,7 @@ public class CommonProxy {
         TombManyGravesConfigs.preInit(event);
         ModItems.createItems();
         ModBlocks.preInit();
+        ModItemBlocks.createItemblocks();
     }
 
     public void init(FMLInitializationEvent event)

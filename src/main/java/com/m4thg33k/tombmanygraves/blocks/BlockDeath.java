@@ -17,6 +17,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -143,5 +144,10 @@ public class BlockDeath extends BaseBlock {
     @Override
     public boolean isBlockSolid(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
         return false;
+    }
+
+    @Override
+    public void onBlockExploded(World world, BlockPos pos, Explosion explosion) {
+
     }
 }

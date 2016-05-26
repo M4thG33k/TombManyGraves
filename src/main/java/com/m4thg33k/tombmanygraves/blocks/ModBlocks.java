@@ -12,6 +12,6 @@ public class ModBlocks {
     public static void preInit()
     {
         GameRegistry.register(blockDeath);
-        GameRegistry.register(new ItemBlock(blockDeath).setRegistryName(TombManyGraves.MODID, Names.DEATH_BLOCK));
+//        GameRegistry.register(new ItemBlock(blockDeath).setRegistryName(TombManyGraves.MODID, Names.DEATH_BLOCK));
     }
 }

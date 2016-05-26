@@ -73,7 +73,7 @@ public class TileDeathBlock extends TileEntity {
         {
             return;
         }
-//        angle = TombManyGraves.rand.nextInt(360);
+
         setPlayerName(player.getName());
         setPlayerID(player.getUniqueID());
         setThisInventory(player.inventory);
@@ -226,36 +226,11 @@ public class TileDeathBlock extends TileEntity {
     @Override
     public SPacketUpdateTileEntity getUpdatePacket() {
         NBTTagCompound compound = this.getUpdateTag();
-//        NBTTagCompound compound = new NBTTagCompound();
-//        compound.setString("PlayerName",playerName);
-//        compound.setInteger("AngleOfDeath",angle);
-//
-//        NBTTagCompound material = new NBTTagCompound();
-//        if (groundMaterial != null)
-//        {
-//            groundMaterial.writeToNBT(material);
-//        }
-//        compound.setTag("Material",material);
-//        compound.setBoolean("IsLocked",locked);
-//        compound.setUniqueId("PlayerID",playerID);
         return new SPacketUpdateTileEntity(pos,0,compound);
     }
 
     @Override
     public NBTTagCompound getUpdateTag() {
-//        NBTTagCompound compound = new NBTTagCompound();
-//        compound.setString("PlayerName",playerName);
-//        compound.setInteger("AngleOfDeath",angle);
-//
-//        NBTTagCompound material = new NBTTagCompound();
-//        if (groundMaterial != null)
-//        {
-//            groundMaterial.writeToNBT(material);
-//        }
-//        compound.setTag("Material",material);
-//        compound.setBoolean("IsLocked",locked);
-//        compound.setUniqueId("PlayerID",playerID);
-//        return compound;
         return this.writeToNBT(new NBTTagCompound());
     }
 
