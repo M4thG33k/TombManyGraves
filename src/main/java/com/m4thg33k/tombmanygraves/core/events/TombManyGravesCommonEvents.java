@@ -19,6 +19,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -64,27 +65,14 @@ public class TombManyGravesCommonEvents {
                         ((TileDeathBlock)tileEntity).grabPlayer(player);
 
                         IBlockState state1 = getBlockBelow(player.worldObj,posToPlace);
-//                        Block block = state1.getBlock();
-
-//                        if (state1.getMaterial() == Material.GROUND || state1.getMaterial() == Material.ROCK || state1.getMaterial() == Material.WOOD || state1.getMaterial() == Material.SAND || state1.getMaterial() == Material.GRASS || state1.getMaterial() == Material.AIR)
-//                        {
-//                            if (state1.getMaterial() == Material.GRASS)
-//                            {
-//                                block = Blocks.DIRT;
-//                                state1 = block.getDefaultState();
-//                            }
-//                            else if (state1.getMaterial() == Material.AIR)
-//                            {
-//                                block = ModBlocks.blockDeath;
-//                                state1 = block.getDefaultState();
-//                            }
-////                            ((TileDeathBlock) tileEntity).setCamoState(state1);
-//                            ((TileDeathBlock)tileEntity).setGroundMaterial(new ItemStack(block,1,block.getMetaFromState(state1)));
-//                        }
 
                         if (state1.getMaterial() == Material.AIR)
                         {
                             state1 = ModBlocks.blockDeath.getDefaultState();
+                        }
+                        else if (state1.getMaterial() == Material.GRASS)
+                        {
+                            state1 = Blocks.DIRT.getDefaultState();
                         }
                         ((TileDeathBlock) tileEntity).setCamoState(state1);
                     }
@@ -174,7 +162,7 @@ public class TombManyGravesCommonEvents {
         {
             return true;
         }
-        if (TombManyGravesConfigs.ALLOW_GRAVES_ON_PLANTS && theBlock instanceof IGrowable)
+        if (TombManyGravesConfigs.ALLOW_GRAVES_ON_PLANTS && theBlock instanceof IPlantable)
         {
             return true;
         }

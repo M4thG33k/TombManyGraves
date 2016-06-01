@@ -3,6 +3,7 @@ package com.m4thg33k.tombmanygraves.tiles;
 import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
+import com.m4thg33k.tombmanygraves.blocks.BlockDeath;
 import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
@@ -355,6 +356,6 @@ public class TileDeathBlock extends TileEntity {
 
     public void setRenderGround()
     {
-        renderGround = !(camoState == null || camoState.getBlock() == Blocks.AIR);
+        renderGround = !(camoState == null || camoState.getBlock() instanceof BlockDeath);
     }
 }
