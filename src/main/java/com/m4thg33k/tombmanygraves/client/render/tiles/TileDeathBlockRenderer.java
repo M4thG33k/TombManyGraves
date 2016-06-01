@@ -1,7 +1,6 @@
 package com.m4thg33k.tombmanygraves.client.render.tiles;
 
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
-import net.minecraft.block.state.BlockStateBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -32,7 +31,6 @@ public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
         int deathAngle = tileDeathBlock.getAngle();
         boolean isLocked = tileDeathBlock.isLocked();
         boolean renderGround = tileDeathBlock.getRenderGround();
-        ItemStack groundType = tileDeathBlock.getGroundMaterial();
 
         GlStateManager.pushMatrix();
         GlStateManager.color(1.0f,1.0f,1.0f,1.0f);
@@ -67,7 +65,6 @@ public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
             GlStateManager.pushMatrix();
             GlStateManager.translate(0, -0.25, 0);
             GlStateManager.scale(2, 1, 2);
-            itemRenderer.renderItem(groundType, ItemCameraTransforms.TransformType.FIXED);
 
             GlStateManager.popMatrix();
         }
@@ -95,8 +92,8 @@ public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
             RenderHelper.disableStandardItemLighting();
             GlStateManager.popAttrib();
             GlStateManager.popMatrix();
-
         }
+
         GlStateManager.popMatrix();
 
     }

@@ -1,17 +1,21 @@
 package com.m4thg33k.tombmanygraves.blocks;
 
 import com.m4thg33k.tombmanygraves.TombManyGraves;
+import com.m4thg33k.tombmanygraves.api.state.TMGStateProps;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.gui.TombManyGravesGuiHandler;
 import com.m4thg33k.tombmanygraves.lib.Names;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -20,7 +24,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.property.ExtendedBlockState;
+import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class BlockDeath extends BaseBlock {
@@ -33,7 +41,40 @@ public class BlockDeath extends BaseBlock {
 
         this.setRegistryName(TombManyGraves.MODID,Names.DEATH_BLOCK);
 
+        this.setDefaultState(((IExtendedBlockState) blockState.getBaseState()).withProperty(TMGStateProps.HELD_STATE, null)
+                                                                                .withProperty(TMGStateProps.HELD_WORLD, null)
+                                                                                .withProperty(TMGStateProps.HELD_POS, null));
+    }
 
+    @Nonnull
+    @Override
+    protected BlockStateContainer createBlockState() {
+        return new ExtendedBlockState(this, new IProperty[] {}, new IUnlistedProperty[] {TMGStateProps.HELD_STATE, TMGStateProps.HELD_WORLD, TMGStateProps.HELD_POS});
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        return 0;
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        return getDefaultState();
+    }
+
+    @Nonnull
+    @Override
+    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
+        state = ((IExtendedBlockState) state).withProperty(TMGStateProps.HELD_WORLD, world).withProperty(TMGStateProps.HELD_POS, pos);
+
+        if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileDeathBlock)
+        {
+            TileDeathBlock tile = (TileDeathBlock) world.getTileEntity(pos);
+            return ((IExtendedBlockState) state).withProperty(TMGStateProps.HELD_STATE, tile.getCamoState());
+        } else
+        {
+            return state;
+        }
     }
 
     @Override
@@ -118,8 +159,10 @@ public class BlockDeath extends BaseBlock {
 
     @Override
     public EnumBlockRenderType getRenderType(IBlockState state) {
-        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
+//        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
+        return EnumBlockRenderType.MODEL;
     }
+
 
     @Override
     public boolean isOpaqueCube(IBlockState state) {
@@ -148,6 +191,47 @@ public class BlockDeath extends BaseBlock {
 
     @Override
     public void onBlockExploded(World world, BlockPos pos, Explosion explosion) {
-
     }
+
+    @Override
+    public boolean isFullBlock(IBlockState state) {
+        return false;
+    }
+
+    @Override
+    public boolean isFullyOpaque(IBlockState state) {
+        return false;
+    }
+
+    @Override
+    public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return false;
+    }
+
+    @Override
+    public boolean isVisuallyOpaque() {
+        return false;
+    }
+
+    @Override
+    public int getLightOpacity(IBlockState state) {
+        return 0;
+    }
+
+    @Override
+    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        return true;
+    }
+
+    @Override
+    public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing face) {
+        return false;
+    }
+
+    @Override
+    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
+        return super.canRenderInLayer(state, layer);
+    }
+
+
 }

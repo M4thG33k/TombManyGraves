@@ -9,6 +9,7 @@ import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,11 +33,12 @@ import net.minecraft.world.World;
 import java.util.UUID;
 
 public class TileDeathBlock extends TileEntity {
+    private static final String TAG_CAMO = "camo";
+    private static final String TAG_CAMO_META = "camoMeta";
 
     private String playerName = "";
     private InventoryPlayer savedPlayerInventory = new InventoryPlayer(null);
     private NBTTagCompound baublesNBT = new NBTTagCompound();
-    private ItemStack groundMaterial = null;
     private boolean locked = false;
 
     private UUID playerID = null;
@@ -46,11 +48,11 @@ public class TileDeathBlock extends TileEntity {
     private boolean renderGround = false;
     private ItemStack skull = null;
 
+    private IBlockState camoState;
+
     public TileDeathBlock()
     {
         locked = TombManyGravesConfigs.DEFAULT_TO_LOCKED;
-
-        LogHelper.info("Creating Tomb");
     }
 
     public void setPlayerName(String name)
@@ -109,11 +111,6 @@ public class TileDeathBlock extends TileEntity {
         return playerName;
     }
 
-    public UUID getPlayerID()
-    {
-        return playerID;
-    }
-
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
@@ -124,11 +121,17 @@ public class TileDeathBlock extends TileEntity {
         baublesNBT = compound.getCompoundTag("BaublesNBT");
         angle = compound.getInteger("AngleOfDeath");
 
-        groundMaterial = ItemStack.loadItemStackFromNBT(compound.getCompoundTag("Material"));
-        this.setBlockMaterial();
         locked = compound.getBoolean("IsLocked");
 
         playerID = compound.getUniqueId("PlayerID");
+
+        Block b = Block.getBlockFromName(compound.getString(TAG_CAMO));
+        if (b != null)
+        {
+            camoState = b.getStateFromMeta(compound.getInteger(TAG_CAMO_META));
+        }
+
+        setRenderGround();
     }
 
     @Override
@@ -144,16 +147,15 @@ public class TileDeathBlock extends TileEntity {
         compound.setTag("BaublesNBT",baublesNBT);
         compound.setInteger("AngleOfDeath",angle);
 
-
-        NBTTagCompound material = new NBTTagCompound();
-        if (groundMaterial != null)
-        {
-            groundMaterial.writeToNBT(material);
-        }
-        compound.setTag("Material",material);
         compound.setBoolean("IsLocked", locked);
 
         compound.setUniqueId("PlayerID", playerID);
+
+        if (camoState != null)
+        {
+            compound.setString(TAG_CAMO, Block.REGISTRY.getNameForObject(camoState.getBlock()).toString());
+            compound.setInteger(TAG_CAMO_META, camoState.getBlock().getMetaFromState(camoState));
+        }
 
         return compound;
     }
@@ -217,10 +219,16 @@ public class TileDeathBlock extends TileEntity {
         playerName = pkt.getNbtCompound().getString("PlayerName");
         this.setSkull();
         angle = pkt.getNbtCompound().getInteger("AngleOfDeath");
-        groundMaterial = ItemStack.loadItemStackFromNBT(pkt.getNbtCompound().getCompoundTag("Material"));
-        this.setBlockMaterial();
+
         locked = pkt.getNbtCompound().getBoolean("IsLocked");
         playerID = pkt.getNbtCompound().getUniqueId("PlayerID");
+
+        Block b = Block.getBlockFromName(pkt.getNbtCompound().getString(TAG_CAMO));
+        if (b != null)
+        {
+            camoState = b.getStateFromMeta(pkt.getNbtCompound().getInteger(TAG_CAMO_META));
+        }
+        setRenderGround();
     }
 
     @Override
@@ -275,16 +283,6 @@ public class TileDeathBlock extends TileEntity {
         return true;
     }
 
-    public void setGroundMaterial(ItemStack material)
-    {
-        groundMaterial = material.copy();
-    }
-
-    public ItemStack getGroundMaterial()
-    {
-        return groundMaterial;
-    }
-
     public boolean isLocked()
     {
         return locked;
@@ -322,23 +320,6 @@ public class TileDeathBlock extends TileEntity {
         return TombManyGravesConfigs.ALLOW_GRAVE_ROBBING || isSamePlayer(player) || isFriend(player);
     }
 
-    private void setBlockMaterial()
-    {
-        if (groundMaterial == null)
-        {
-            renderGround = true;
-            groundMaterial = new ItemStack(Blocks.DIRT,1);
-        }
-        else if (groundMaterial.getItem() == Item.getItemFromBlock(ModBlocks.blockDeath))
-        {
-            renderGround = false;
-        }
-        else
-        {
-            renderGround = true;
-        }
-    }
-
     public boolean getRenderGround()
     {
         return renderGround;
@@ -359,5 +340,21 @@ public class TileDeathBlock extends TileEntity {
     @Override
     public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate) {
         return true;
+    }
+
+    public void setCamoState(IBlockState state)
+    {
+        camoState = state;
+        setRenderGround();
+    }
+
+    public IBlockState getCamoState()
+    {
+        return camoState;
+    }
+
+    public void setRenderGround()
+    {
+        renderGround = !(camoState == null || camoState.getBlock() == Blocks.AIR);
     }
 }

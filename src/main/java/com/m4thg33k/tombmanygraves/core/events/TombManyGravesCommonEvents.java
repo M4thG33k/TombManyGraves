@@ -8,6 +8,7 @@ import com.m4thg33k.tombmanygraves.items.ModItems;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.IGrowable;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -63,22 +64,29 @@ public class TombManyGravesCommonEvents {
                         ((TileDeathBlock)tileEntity).grabPlayer(player);
 
                         IBlockState state1 = getBlockBelow(player.worldObj,posToPlace);
-                        Block block = state1.getBlock();
+//                        Block block = state1.getBlock();
 
-                        if (state1.getMaterial() == Material.GROUND || state1.getMaterial() == Material.ROCK || state1.getMaterial() == Material.WOOD || state1.getMaterial() == Material.SAND || state1.getMaterial() == Material.GRASS || state1.getMaterial() == Material.AIR)
+//                        if (state1.getMaterial() == Material.GROUND || state1.getMaterial() == Material.ROCK || state1.getMaterial() == Material.WOOD || state1.getMaterial() == Material.SAND || state1.getMaterial() == Material.GRASS || state1.getMaterial() == Material.AIR)
+//                        {
+//                            if (state1.getMaterial() == Material.GRASS)
+//                            {
+//                                block = Blocks.DIRT;
+//                                state1 = block.getDefaultState();
+//                            }
+//                            else if (state1.getMaterial() == Material.AIR)
+//                            {
+//                                block = ModBlocks.blockDeath;
+//                                state1 = block.getDefaultState();
+//                            }
+////                            ((TileDeathBlock) tileEntity).setCamoState(state1);
+//                            ((TileDeathBlock)tileEntity).setGroundMaterial(new ItemStack(block,1,block.getMetaFromState(state1)));
+//                        }
+
+                        if (state1.getMaterial() == Material.AIR)
                         {
-                            if (state1.getMaterial() == Material.GRASS)
-                            {
-                                block = Blocks.DIRT;
-                                state1 = block.getDefaultState();
-                            }
-                            else if (state1.getMaterial() == Material.AIR)
-                            {
-                                block = ModBlocks.blockDeath;
-                                state1 = block.getDefaultState();
-                            }
-                            ((TileDeathBlock)tileEntity).setGroundMaterial(new ItemStack(block,1,block.getMetaFromState(state1)));
+                            state1 = ModBlocks.blockDeath.getDefaultState();
                         }
+                        ((TileDeathBlock) tileEntity).setCamoState(state1);
                     }
                     else
                     {
@@ -163,6 +171,10 @@ public class TombManyGravesCommonEvents {
             return true;
         }
         if (TombManyGravesConfigs.ALLOW_GRAVES_IN_FLOWING_WATER && theBlock == Blocks.FLOWING_WATER)
+        {
+            return true;
+        }
+        if (TombManyGravesConfigs.ALLOW_GRAVES_ON_PLANTS && theBlock instanceof IGrowable)
         {
             return true;
         }

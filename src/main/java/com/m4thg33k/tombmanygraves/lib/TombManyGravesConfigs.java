@@ -13,6 +13,7 @@ public class TombManyGravesConfigs {
     public static boolean ALLOW_GRAVES_IN_FLOWING_WATER;
     public static boolean ALLOW_GRAVES_IN_LAVA;
     public static boolean ALLOW_GRAVES_IN_FLOWING_LAVA;
+    public static boolean ALLOW_GRAVES_ON_PLANTS;
 
     public static boolean DEFAULT_TO_LOCKED;
     public static boolean ALLOW_GRAVE_ROBBING;
@@ -43,6 +44,8 @@ public class TombManyGravesConfigs {
         ALLOW_GRAVES_IN_FLOWING_WATER = config.get("Graves","allowGravesInFLOWINGWater",true,"If this is true, graves will be able to replace flowing water blocks. (Defaults to true)").getBoolean();
         ALLOW_GRAVES_IN_LAVA = config.get("Graves","allowGravesInLava",true,"If this is true, graves will be able to replace still lava blocks. (Defaults to true)").getBoolean();
         ALLOW_GRAVES_IN_FLOWING_LAVA = config.get("Graves","allowGravesInFLOWINGLava",true,"If this is true, graves will be able to replace flowing lava blocks. (Defaults to true)").getBoolean();
+
+        ALLOW_GRAVES_ON_PLANTS = config.get("Graves", "allowGravesOnPlants", true, "If this is true, graves will be able to replace any/all plants (anything that implements IGrowable). (Defaults to true)").getBoolean();
 
         DEFAULT_TO_LOCKED = config.get("Graves","defaultToLocked",false,"If this is true, spawned graves will default to being locked and will need to be unlocked (via shift-clicking) in order to get items back. (Defaults to true)").getBoolean();
 
