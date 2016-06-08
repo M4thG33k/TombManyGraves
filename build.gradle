@@ -28,7 +28,7 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.2"
 }
 */
-version = "1.9.4-2.1.0"
+version = "1.9.4-2.1.1"
 group= "com.m4thg33k.tombmanygraves" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "TombManyGraves"
 
@@ -37,7 +37,7 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 minecraft {
-    version = "1.9.4-12.17.0.1917-1.9.4"
+    version = "1.9.4-12.17.0.1954"
     runDir = "run"
 
 

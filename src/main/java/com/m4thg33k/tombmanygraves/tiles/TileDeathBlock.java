@@ -4,33 +4,32 @@ import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.blocks.BlockDeath;
-import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
-import mcp.MethodsReturnNonnullByDefault;
+import crazypants.enderio.config.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class TileDeathBlock extends TileEntity {
@@ -92,14 +91,56 @@ public class TileDeathBlock extends TileEntity {
 
     public void setBaubleInventory(EntityPlayer player)
     {
-        PlayerHandler.getPlayerBaubles(player).saveNBT(baublesNBT);
-        PlayerHandler.clearPlayerBaubles(player);
+        baublesNBT = getBaublesNBTSansSoulbound(player, true);
+//        InventoryBaubles temp = new InventoryBaubles(player);
+//        InventoryBaubles playerBaubles = PlayerHandler.getPlayerBaubles(player);
+//
+//        IInventory tempInv = (IInventory)temp;
+//        IInventory playerBaublesInv = (IInventory) playerBaubles;
+//
+//        for (int i=0; i < tempInv.getSizeInventory(); i++)
+//        {
+//            if (isValidForGrave(playerBaublesInv.getStackInSlot(i)))
+//            {
+//                tempInv.setInventorySlotContents(i, playerBaublesInv.getStackInSlot(i).copy());
+//                playerBaublesInv.setInventorySlotContents(i, null);
+//            }
+//        }
+//
+//        temp.saveNBT(baublesNBT);
+
+
+//        PlayerHandler.getPlayerBaubles(player).saveNBT(baublesNBT);
+//        PlayerHandler.clearPlayerBaubles(player);
     }
 
     public void setThisInventory(InventoryPlayer inventoryPlayer)
     {
-        this.savedPlayerInventory.copyInventory(inventoryPlayer);
-        inventoryPlayer.clear();
+        this.savedPlayerInventory = getInventorySansSoulbound(inventoryPlayer, true);
+//        this.savedPlayerInventory = new InventoryPlayer(inventoryPlayer.player);
+
+//        for (int i = 0; i < this.savedPlayerInventory.getSizeInventory(); i++)
+//        {
+//            if (isValidForGrave(inventoryPlayer.getStackInSlot(i)))
+//            {
+//                this.savedPlayerInventory.setInventorySlotContents(i,inventoryPlayer.getStackInSlot(i).copy());
+//                inventoryPlayer.setInventorySlotContents(i, null);
+//            }
+//        }
+
+//        this.savedPlayerInventory.copyInventory(inventoryPlayer);
+//        inventoryPlayer.clear();
+    }
+
+    public static boolean isValidForGrave(ItemStack stack)
+    {
+        boolean hasSize = stack != null && stack.stackSize > 0;
+        if (!hasSize)
+        {
+            return false;
+        }
+        boolean notSoulbound = !hasSoulboundEnchantment(stack);
+        return notSoulbound;
     }
 
     public boolean isSamePlayer(EntityPlayer player)
@@ -275,7 +316,7 @@ public class TileDeathBlock extends TileEntity {
     {
         for (int i=0; i < inventory.getSizeInventory(); i++)
         {
-            if (inventory.getStackInSlot(i) != null && inventory.getStackInSlot(i).stackSize > 0)
+            if (inventory.getStackInSlot(i) != null && inventory.getStackInSlot(i).stackSize > 0 && !hasSoulboundEnchantment(inventory.getStackInSlot(i)))
             {
                 return false;
             }
@@ -357,5 +398,85 @@ public class TileDeathBlock extends TileEntity {
     public void setRenderGround()
     {
         renderGround = !(camoState == null || camoState.getBlock() instanceof BlockDeath);
+    }
+
+    public static boolean hasSoulboundEnchantment(ItemStack stack)
+    {
+        if (stack == null || stack.stackSize == 0 || !TombManyGraves.isEnderIOInstalled)
+        {
+            return false;
+        }
+
+        if (Config.enchantmentSoulBoundEnabled)
+        {
+            Map<Enchantment, Integer> enchantMap = EnchantmentHelper.getEnchantments(stack);
+            for (Enchantment enchantment : enchantMap.keySet())
+            {
+//                LogHelper.info(enchantment.getName());
+                if (enchantment.getName().equals("enchantment.soulBound"))
+                {
+                    return enchantMap.get(enchantment) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void copyInventoryWithoutSoulbound(IInventory original,IInventory newer, boolean clearOriginal)
+    {
+        for (int i=0; i<newer.getSizeInventory();i++)
+        {
+            if (isValidForGrave(original.getStackInSlot(i)))
+            {
+                newer.setInventorySlotContents(i, original.getStackInSlot(i).copy());
+                if (clearOriginal)
+                {
+                    original.setInventorySlotContents(i, null);
+                }
+            }
+        }
+    }
+
+    public static InventoryPlayer getInventorySansSoulbound(InventoryPlayer original,boolean clearOriginal)
+    {
+        InventoryPlayer toReturn = new InventoryPlayer(original.player);
+        copyInventoryWithoutSoulbound(original, toReturn, clearOriginal);
+//        for (int i=0; i<toReturn.getSizeInventory(); i++)
+//        {
+//            if (isValidForGrave(original.getStackInSlot(i)))
+//            {
+//                toReturn.setInventorySlotContents(i, original.getStackInSlot(i).copy());
+//                if (clearOriginal)
+//                {
+//                    original.setInventorySlotContents(i, null);
+//                }
+//            }
+//        }
+        return toReturn;
+    }
+
+    public static NBTTagCompound getBaublesNBTSansSoulbound(EntityPlayer player, boolean clearOriginal)
+    {
+        InventoryBaubles toReturn = new InventoryBaubles(player);
+        InventoryBaubles current = PlayerHandler.getPlayerBaubles(player);
+
+        copyInventoryWithoutSoulbound(current, toReturn, clearOriginal);
+//        IInventory retInv = (IInventory) toReturn;
+//        IInventory currentInv = (IInventory) current;
+
+//        for (int i=0; i<retInv.getSizeInventory(); i++)
+//        {
+//            if (isValidForGrave(currentInv.getStackInSlot(i)))
+//            {
+//                retInv.setInventorySlotContents(i, currentInv.getStackInSlot(i).copy());
+//                if (clearOriginal)
+//                {
+//                    currentInv.setInventorySlotContents(i, null);
+//                }
+//            }
+//        }
+        NBTTagCompound compound = new NBTTagCompound();
+        toReturn.saveNBT(compound);
+        return compound;
     }
 }

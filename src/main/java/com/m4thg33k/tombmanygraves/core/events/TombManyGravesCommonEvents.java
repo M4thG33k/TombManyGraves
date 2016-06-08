@@ -1,6 +1,7 @@
 package com.m4thg33k.tombmanygraves.core.events;
 
 import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
+import com.m4thg33k.tombmanygraves.core.handlers.DeathInventory;
 import com.m4thg33k.tombmanygraves.core.handlers.DeathInventoryHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.core.util.LogHelper;
@@ -22,6 +23,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -35,12 +37,82 @@ public class TombManyGravesCommonEvents {
 
     }
 
+
+//    @SubscribeEvent(priority = EventPriority.NORMAL)
+//    public void handleDeathDrops(PlayerDropsEvent event)
+//    {
+//        boolean flag1 = event.getEntityPlayer().worldObj.getGameRules().getBoolean("keepInventory");
+//        boolean flag2 = event.getEntityPlayer().worldObj.isRemote;
+//        boolean flag3 = TileDeathBlock.isInventoryEmpty(event.getEntityPlayer());
+//        if (event.getEntityPlayer().worldObj.getGameRules().getBoolean("keepInventory") || event.getEntityPlayer().worldObj.isRemote || TileDeathBlock.isInventoryEmpty(event.getEntityPlayer()))
+//        {
+//            return;
+//        }
+//
+//        EntityPlayer player = event.getEntityPlayer();
+//
+//        if (TileDeathBlock.isInventoryEmpty(event.getEntityPlayer()))
+//        {
+//            ChatHelper.sayMessage(player.worldObj, player, "Place of death (x,y,z) = (" + (int)player.posX + "," + (int)player.posY + "," + (int)player.posZ + ")");
+//            ChatHelper.sayMessage(player.worldObj, player, "(But your inventory was empty)");
+//            return;
+//        }
+//
+//        //write the inventory backup file
+//        DeathInventoryHandler.createDeathInventory(event.getEntityPlayer());
+//
+//        //create the grave
+//        if (TombManyGravesConfigs.ENABLE_GRAVES)
+//        {
+//            IBlockState state = ModBlocks.blockDeath.getDefaultState();
+//            BlockPos posToPlace = findValidLocation(player.worldObj, player.getPosition());
+//            if (posToPlace.getY() != -1)
+//            {
+//                ChatHelper.sayMessage(player.worldObj, player, "Place of death (x,y,z) = (" + posToPlace.getX() + "," + posToPlace.getY() + "," + posToPlace.getZ() + ")");
+//                player.worldObj.setBlockState(posToPlace, state);
+//                TileEntity tileEntity = player.worldObj.getTileEntity(posToPlace);
+//                if (tileEntity != null && tileEntity instanceof TileDeathBlock)
+//                {
+//                    ((TileDeathBlock)tileEntity).grabPlayer(player);
+//
+//                    IBlockState ground = getBlockBelow(player.worldObj, posToPlace);
+//
+//                    if (ground.getMaterial() == Material.AIR)
+//                    {
+//                        ground = ModBlocks.blockDeath.getDefaultState();
+//                    }
+//                    else if (ground.getMaterial() == Material.GRASS)
+//                    {
+//                        ground = Blocks.DIRT.getDefaultState();
+//                    }
+//                    ((TileDeathBlock) tileEntity).setCamoState(ground);
+//                }
+//                else
+//                {
+//                    LogHelper.info("Error! Death block tile not found!");
+//                }
+//            }
+//            else
+//            {
+//                ChatHelper.sayMessage(player.worldObj,player,"Could not find suitable grave location.");
+//            }
+//        }
+//
+//    }
+
+
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void savePlayerInventoryOnDeath(LivingDeathEvent event)
     {
-        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer)event.getEntityLiving()).worldObj.isRemote && !TileDeathBlock.isInventoryEmpty((EntityPlayer)event.getEntityLiving()))
+        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer)event.getEntityLiving()).worldObj.isRemote)
         {
-            DeathInventoryHandler.createDeathInventory((EntityPlayer)event.getEntityLiving());
+            if (TileDeathBlock.isInventoryEmpty((EntityPlayer)event.getEntityLiving())){
+                DeathInventory.clearLatest((EntityPlayer)event.getEntityLiving());
+            }
+            else
+            {
+                DeathInventoryHandler.createDeathInventory((EntityPlayer)event.getEntityLiving());
+            }
         }
     }
 

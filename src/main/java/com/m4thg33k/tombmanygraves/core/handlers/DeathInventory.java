@@ -3,7 +3,9 @@ package com.m4thg33k.tombmanygraves.core.handlers;
 import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
+import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.items.ModItems;
+import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -32,17 +34,22 @@ public class DeathInventory {
         allNBT = new NBTTagCompound();
 
         NBTTagList tagList = new NBTTagList();
-        player.inventory.writeToNBT(tagList);
-        allNBT.setTag("Main",tagList);
+
+
+
+        InventoryPlayer inventoryToWrite = TileDeathBlock.getInventorySansSoulbound(player.inventory, false);
+        inventoryToWrite.writeToNBT(tagList);
+//      player.inventory.writeToNBT(tagList);
+        allNBT.setTag("Main", tagList);
 
         NBTTagCompound baublesNBT = new NBTTagCompound();
         if (TombManyGraves.isBaublesInstalled) {
             PlayerHandler.getPlayerBaubles(player).saveNBT(baublesNBT);
         }
-        allNBT.setTag("Baubles",baublesNBT);
+        allNBT.setTag("Baubles", baublesNBT);
     }
 
-    public boolean writePortion(String fileName,String toWrite)
+    public static boolean writePortion(String fileName,String toWrite)
     {
         boolean didWork = true;
 
@@ -90,6 +97,16 @@ public class DeathInventory {
         return didWork;
     }
 
+    public static void clearLatest(EntityPlayer player)
+    {
+        String filename = "/" + player.getName();
+        String timeStamp = "latest";
+        String filePostfix = timeStamp + ".json";
+
+        String fullFileName = TombManyGraves.file + DeathInventoryHandler.FILE_PREFIX + filename + "#" + filePostfix;
+        writePortion(fullFileName, "{}");
+    }
+
     public boolean dropAll(EntityPlayer player, String timestamp)
     {
         boolean didWork = true;
@@ -113,6 +130,7 @@ public class DeathInventory {
                 inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
                 InventoryHelper.dropInventoryItems(player.worldObj, player.getPosition(), inventoryBaubles);
             }
+            reader.close();
         }
         catch (Exception e)
         {
@@ -144,6 +162,7 @@ public class DeathInventory {
                 inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
                 PlayerHandler.setPlayerBaubles(player,inventoryBaubles);
             }
+            reader.close();
         }
         catch (Exception e)
         {
@@ -167,11 +186,16 @@ public class DeathInventory {
             reader = new BufferedReader(new FileReader(filename));
             String fileData = reader.readLine();
             allNBT = JsonToNBT.getTagFromJson(fileData);
-
-            ItemStack theList = new ItemStack(ModItems.itemDeathList,1);
-            theList.setTagCompound(allNBT);
-            EntityItem entityItem = new EntityItem(player.worldObj,player.posX, player.posY, player.posZ, theList);
-            player.worldObj.spawnEntityInWorld(entityItem);
+            if (allNBT.getKeySet().size() > 0) {
+                ItemStack theList = new ItemStack(ModItems.itemDeathList, 1);
+                theList.setTagCompound(allNBT);
+                EntityItem entityItem = new EntityItem(player.worldObj, player.posX, player.posY, player.posZ, theList);
+                player.worldObj.spawnEntityInWorld(entityItem);
+            }
+            else
+            {
+                ChatHelper.sayMessage(player.worldObj, player, playerName + " had no items upon death!");
+            }
         }
         catch (Exception e)
         {
