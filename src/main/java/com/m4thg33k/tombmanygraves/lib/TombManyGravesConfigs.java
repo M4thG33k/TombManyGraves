@@ -9,6 +9,7 @@ public class TombManyGravesConfigs {
 
     public static boolean ENABLE_GRAVES;
     public static int GRAVE_RANGE;
+    public static boolean VOID_SEARCH_1;
     public static boolean ALLOW_GRAVES_IN_WATER;
     public static boolean ALLOW_GRAVES_IN_FLOWING_WATER;
     public static boolean ALLOW_GRAVES_IN_LAVA;
@@ -22,6 +23,8 @@ public class TombManyGravesConfigs {
     public static boolean REQUIRE_SNEAKING;
 
     public static boolean ALLOW_INVENTORY_SAVES;
+
+    public static boolean FORCE_DIRT_RENDER;
 
     public static void preInit(FMLPreInitializationEvent event)
     {
@@ -38,6 +41,8 @@ public class TombManyGravesConfigs {
         {
             GRAVE_RANGE = 32;
         }
+        VOID_SEARCH_1 = config.get("Graves", "startVoidSearchAt1",false,"If true, when a player dies with y < 0, the grave will start searching for a valid location at y = 1 instead. If false, it will start searching at y = GRAVE_RANGE. (Defaults to false.)").getBoolean();
+
 
 
         ALLOW_GRAVES_IN_WATER = config.get("Graves","allowGravesInWater",true,"If this is true, graves will be able to replace still water blocks. (Defaults to true)").getBoolean();
@@ -55,6 +60,8 @@ public class TombManyGravesConfigs {
         REQUIRE_SNEAKING = config.get("Graves","requireSneaking",true,"If set to true, players will be required to sneak to their grave to get their items back; otherwise any contact at all will allow retrieval. (Defaults to true)").getBoolean();
 
         ALLOW_INVENTORY_SAVES = config.get("Inventory","allowInventorySaves",true,"If set to true, a file will be generated for each player death, allowing OPs to restore a player's inventory from the file. (Defaults to true)").getBoolean();
+
+        FORCE_DIRT_RENDER = config.get("Graves","forceDirtRender",false,"If true, all graves will render as either a floating head or with the dirt texture and will not adapt to the texture beneath it. (You can set this to true to fix specific client-side crashes.) (Defaults to false)").getBoolean();
 
         config.save();
     }

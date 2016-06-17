@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.m4thg33k.tombmanygraves.api.state.TMGStateProps;
 import com.m4thg33k.tombmanygraves.blocks.BlockDeath;
 import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
+import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -94,7 +95,7 @@ public class GoodGraveModel implements IBakedModel {
         {
             return ImmutableList.of();
         }
-        else if (heldState.getBlock() == Blocks.AIR || !heldState.getBlock().canRenderInLayer(heldState,layer))
+        else if (TombManyGravesConfigs.FORCE_DIRT_RENDER || heldState.getBlock() == Blocks.AIR || !heldState.getBlock().canRenderInLayer(heldState,layer) || heldState.getBlock().hasTileEntity(heldState))
         {
             IBlockState dirtState = Blocks.DIRT.getDefaultState();
             return getActualModel(ModelHelper.getTextureFromBlockstate(dirtState).getIconName()).getQuads(dirtState, side, rand);

@@ -31,6 +31,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 public class TombManyGravesCommonEvents {
 
     private static final int MAX_RADIUS = TombManyGravesConfigs.GRAVE_RANGE;
+    private static final boolean VOID_SEARCH_1 = TombManyGravesConfigs.VOID_SEARCH_1;
 
     public TombManyGravesCommonEvents()
     {
@@ -172,7 +173,7 @@ public class TombManyGravesCommonEvents {
         BlockPos toCheck = pos.add(0,0,0);
         if (toCheck.getY()<=0)
         {
-            toCheck = toCheck.add(0, MathHelper.abs_int(toCheck.getY())+1,0);
+            toCheck = toCheck.add(0, MathHelper.abs_int(toCheck.getY())+(VOID_SEARCH_1 ? 1 : MAX_RADIUS),0);
             LogHelper.info(toCheck.toString());
         }
         for (int r=0;r<=MAX_RADIUS;r++)
