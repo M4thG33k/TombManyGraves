@@ -20,6 +20,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -120,6 +121,12 @@ public class TombManyGravesCommonEvents {
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void onPlayerDeath(LivingDeathEvent event)
     {
+        if (TombManyGravesConfigs.PRINT_DEATH_LOG && event.getEntityLiving() instanceof EntityPlayer && !event.getEntityLiving().getEntityWorld().isRemote)
+        {
+            EntityPlayer player = (EntityPlayer)event.getEntityLiving();
+            BlockPos pos = player.getPosition();
+            LogHelper.info(player.getName() + " died in dimension " +  player.dimension + " at (x,y,z) = (" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + ")." + (TombManyGravesConfigs.ENABLE_GRAVES ? " Their grave may be near!" : ""));
+        }
         if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && TombManyGravesConfigs.ENABLE_GRAVES && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer) event.getEntityLiving()).worldObj.isRemote)
         {
             EntityPlayer player = (EntityPlayer)event.getEntityLiving();

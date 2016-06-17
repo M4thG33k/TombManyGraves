@@ -26,6 +26,8 @@ public class TombManyGravesConfigs {
 
     public static boolean FORCE_DIRT_RENDER;
 
+    public static boolean PRINT_DEATH_LOG;
+
     public static void preInit(FMLPreInitializationEvent event)
     {
         config = new Configuration(event.getSuggestedConfigurationFile());
@@ -62,6 +64,8 @@ public class TombManyGravesConfigs {
         ALLOW_INVENTORY_SAVES = config.get("Inventory","allowInventorySaves",true,"If set to true, a file will be generated for each player death, allowing OPs to restore a player's inventory from the file. (Defaults to true)").getBoolean();
 
         FORCE_DIRT_RENDER = config.get("Graves","forceDirtRender",false,"If true, all graves will render as either a floating head or with the dirt texture and will not adapt to the texture beneath it. (You can set this to true to fix specific client-side crashes.) (Defaults to false)").getBoolean();
+
+        PRINT_DEATH_LOG = config.get("Logs","printDeathLog",true,"If true, the log will print the location of a player's death each time they die. (Defaults to true)").getBoolean();
 
         config.save();
     }
