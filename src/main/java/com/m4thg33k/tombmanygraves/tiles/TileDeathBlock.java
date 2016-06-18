@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class TileDeathBlock extends TileEntity {
+    private static final boolean DROP_ITEMS = TombManyGravesConfigs.DROP_ITEMS_ON_GROUND;
     private static final String TAG_CAMO = "camo";
     private static final String TAG_CAMO_META = "camoMeta";
 
@@ -209,13 +210,17 @@ public class TileDeathBlock extends TileEntity {
             return;
         }
 
-        replacePlayerInventory(player);
-
-        if (TombManyGraves.isBaublesInstalled)
+        if (DROP_ITEMS)
         {
-            replaceBaublesInventory(player);
+            dropAllItems();
         }
+        else {
+            replacePlayerInventory(player);
 
+            if (TombManyGraves.isBaublesInstalled) {
+                replaceBaublesInventory(player);
+            }
+        }
         worldObj.setBlockToAir(pos);
     }
 

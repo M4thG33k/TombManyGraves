@@ -28,6 +28,8 @@ public class TombManyGravesConfigs {
 
     public static boolean PRINT_DEATH_LOG;
 
+    public static boolean DROP_ITEMS_ON_GROUND;
+
     public static void preInit(FMLPreInitializationEvent event)
     {
         config = new Configuration(event.getSuggestedConfigurationFile());
@@ -66,6 +68,8 @@ public class TombManyGravesConfigs {
         FORCE_DIRT_RENDER = config.get("Graves","forceDirtRender",false,"If true, all graves will render as either a floating head or with the dirt texture and will not adapt to the texture beneath it. (You can set this to true to fix specific client-side crashes.) (Defaults to false)").getBoolean();
 
         PRINT_DEATH_LOG = config.get("Logs","printDeathLog",true,"If true, the log will print the location of a player's death each time they die. (Defaults to true)").getBoolean();
+
+        DROP_ITEMS_ON_GROUND = config.get("Graves","dropItemsOnGround",false,"If true, the graves will drop all items on the ground when 'broken' instead of attempting to place them in their original slots. (Defaults to false)").getBoolean();
 
         config.save();
     }
