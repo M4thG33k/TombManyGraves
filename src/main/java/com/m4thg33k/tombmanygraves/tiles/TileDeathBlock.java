@@ -224,7 +224,7 @@ public class TileDeathBlock extends TileEntity {
         worldObj.setBlockToAir(pos);
     }
 
-    public void replaceSpecificInventory(EntityPlayer player, IInventory playerInventory,IInventory savedInventory)
+    public void replaceSpecificInventory(EntityPlayer player, IInventory playerInventory, IInventory savedInventory)
     {
         for (int i=0; i < playerInventory.getSizeInventory(); i++)
         {
