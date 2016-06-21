@@ -92,17 +92,22 @@ public class BlockDeath extends BaseBlock {
         if (!worldIn.isRemote)
         {
             TileDeathBlock tileDeathBlock = (TileDeathBlock)worldIn.getTileEntity(pos);
+            if (tileDeathBlock == null)
+            {
+                return true;
+            }
             if (playerIn.isSneaking())
             {
                 tileDeathBlock.toggleLock(playerIn);
             }
             else
             {
-                ChatHelper.sayMessage(worldIn,playerIn,"This grave belongs to: " + tileDeathBlock.getPlayerName());
-                if (tileDeathBlock.isSamePlayer(playerIn))
-                {
-                    ChatHelper.sayMessage(worldIn,playerIn,"Shift-click to lock/unlock the grave!");
-                }
+                tileDeathBlock.onRightClick(playerIn);
+//                ChatHelper.sayMessage(worldIn,playerIn,"This grave belongs to: " + tileDeathBlock.getPlayerName());
+//                if (tileDeathBlock.isSamePlayer(playerIn))
+//                {
+//                    ChatHelper.sayMessage(worldIn,playerIn,"Shift-click to lock/unlock the grave!");
+//                }
             }
         }
         return true;

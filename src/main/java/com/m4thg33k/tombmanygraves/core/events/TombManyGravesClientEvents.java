@@ -48,4 +48,6 @@ public class TombManyGravesClientEvents {
         pre.getMap().registerSprite(new ResourceLocation("tombmanygraves","blocks/red"));
     }
 
+
+
 }

@@ -29,6 +29,8 @@ public class TombManyGravesConfigs {
     public static boolean PRINT_DEATH_LOG;
 
     public static boolean DROP_ITEMS_ON_GROUND;
+    public static boolean GIVE_PRIORITY_TO_GRAVE_ITEMS;
+    public static boolean DISPLAY_GRAVE_NAME;
 
     public static void preInit(FMLPreInitializationEvent event)
     {
@@ -70,6 +72,8 @@ public class TombManyGravesConfigs {
         PRINT_DEATH_LOG = config.get("Logs","printDeathLog",true,"If true, the log will print the location of a player's death each time they die. (Defaults to true)").getBoolean();
 
         DROP_ITEMS_ON_GROUND = config.get("Graves","dropItemsOnGround",false,"If true, the graves will drop all items on the ground when 'broken' instead of attempting to place them in their original slots. (Defaults to false)").getBoolean();
+        GIVE_PRIORITY_TO_GRAVE_ITEMS = config.get("Graves","givePriorityToGraveItems",true,"If true, grave items will be returned to their original slots even if they aren't empty. Any item that was in that slot will be dropped on the ground instead. You can right-click your grave to change to the alternate behavior in-game. (Defaults to true)").getBoolean();
+        DISPLAY_GRAVE_NAME = config.get("Graves","displayGraveName",true,"If true, graves will display their owner's name above them when looking at the block. (Defaults to true)").getBoolean();
 
         config.save();
     }

@@ -51,6 +51,8 @@ public class TileDeathBlock extends TileEntity {
 
     private IBlockState camoState;
 
+    private boolean GIVE_PRIORITY_TO_GRAVE = TombManyGravesConfigs.GIVE_PRIORITY_TO_GRAVE_ITEMS;
+
     public TileDeathBlock()
     {
         locked = TombManyGravesConfigs.DEFAULT_TO_LOCKED;
@@ -144,6 +146,26 @@ public class TileDeathBlock extends TileEntity {
         return notSoulbound;
     }
 
+    public void onRightClick(EntityPlayer player)
+    {
+        if (this.hasAccess(player))
+        {
+            this.toggleGravePriority();
+            if (GIVE_PRIORITY_TO_GRAVE)
+            {
+                ChatHelper.sayMessage(player.worldObj,player,"Grave items will be forced into their original slots.");
+            }
+            else
+            {
+                ChatHelper.sayMessage(player.worldObj,player,"Your current inventory will not be altered.");
+            }
+        }
+        else
+        {
+            ChatHelper.sayMessage(player.worldObj, player, "You don't have permission to interact with this grave.");
+        }
+    }
+
     public boolean isSamePlayer(EntityPlayer player)
     {
         return TombManyGravesConfigs.ALLOW_GRAVE_ROBBING || player.getUniqueID().equals(playerID); //player.getName().equals(playerName);
@@ -167,6 +189,8 @@ public class TileDeathBlock extends TileEntity {
         locked = compound.getBoolean("IsLocked");
 
         playerID = compound.getUniqueId("PlayerID");
+
+        GIVE_PRIORITY_TO_GRAVE = compound.getBoolean("GravePriority");
 
         Block b = Block.getBlockFromName(compound.getString(TAG_CAMO));
         if (b != null)
@@ -194,6 +218,8 @@ public class TileDeathBlock extends TileEntity {
 
         compound.setUniqueId("PlayerID", playerID);
 
+        compound.setBoolean("GravePriority",GIVE_PRIORITY_TO_GRAVE);
+
         if (camoState != null)
         {
             compound.setString(TAG_CAMO, Block.REGISTRY.getNameForObject(camoState.getBlock()).toString());
@@ -201,6 +227,13 @@ public class TileDeathBlock extends TileEntity {
         }
 
         return compound;
+    }
+
+    private void toggleGravePriority()
+    {
+        GIVE_PRIORITY_TO_GRAVE = !GIVE_PRIORITY_TO_GRAVE;
+        markDirty();
+        worldObj.markAndNotifyBlock(pos, null, worldObj.getBlockState(pos), worldObj.getBlockState(pos), 2);
     }
 
     public void onCollision(EntityPlayer player)
@@ -215,13 +248,53 @@ public class TileDeathBlock extends TileEntity {
             dropAllItems();
         }
         else {
-            replacePlayerInventory(player);
+            //replacePlayerInventory(player);
+            if (GIVE_PRIORITY_TO_GRAVE)
+            {
+                swapPlayerInventory(player);
+            }
+            else
+            {
+                replacePlayerInventory(player);
+            }
 
             if (TombManyGraves.isBaublesInstalled) {
-                replaceBaublesInventory(player);
+//                replaceBaublesInventory(player);
+                if (GIVE_PRIORITY_TO_GRAVE)
+                {
+                    swapPlayerBaubles(player);
+                }
+                else
+                {
+                    replaceBaublesInventory(player);
+                }
+
             }
         }
         worldObj.setBlockToAir(pos);
+    }
+
+    public void swapPlayerInventory(EntityPlayer player)
+    {
+        InventoryPlayer current = new InventoryPlayer(player);
+        current.copyInventory(player.inventory);
+        player.inventory.clear();
+        replaceSpecificInventory(player,player.inventory,savedPlayerInventory);
+        replaceSpecificInventory(player, player.inventory,current);
+        savedPlayerInventory = new InventoryPlayer(player);
+    }
+
+    public void swapPlayerBaubles(EntityPlayer player){
+        InventoryBaubles playerBaubles = PlayerHandler.getPlayerBaubles(player);
+        NBTTagCompound playerB = new NBTTagCompound();
+        playerBaubles.saveNBT(playerB);
+        InventoryBaubles currentBaubles = new InventoryBaubles(player);
+        currentBaubles.readNBT(playerB);
+        ((IInventory)playerBaubles).clear();
+        replaceBaublesInventory(player);
+        baublesNBT = playerB;
+        replaceBaublesInventory(player);
+        baublesNBT = new NBTTagCompound();
     }
 
     public void replaceSpecificInventory(EntityPlayer player, IInventory playerInventory, IInventory savedInventory)
@@ -270,6 +343,8 @@ public class TileDeathBlock extends TileEntity {
         locked = pkt.getNbtCompound().getBoolean("IsLocked");
         playerID = pkt.getNbtCompound().getUniqueId("PlayerID");
 
+        GIVE_PRIORITY_TO_GRAVE = pkt.getNbtCompound().getBoolean("GravePriority");
+
         Block b = Block.getBlockFromName(pkt.getNbtCompound().getString(TAG_CAMO));
         if (b != null)
         {
@@ -287,6 +362,11 @@ public class TileDeathBlock extends TileEntity {
     @Override
     public NBTTagCompound getUpdateTag() {
         return this.writeToNBT(new NBTTagCompound());
+    }
+
+    @Override
+    public void handleUpdateTag(NBTTagCompound tag) {
+        this.readFromNBT(tag);
     }
 
     public int getAngle()
@@ -483,5 +563,10 @@ public class TileDeathBlock extends TileEntity {
         NBTTagCompound compound = new NBTTagCompound();
         toReturn.saveNBT(compound);
         return compound;
+    }
+
+    public boolean areGraveItemsForced()
+    {
+        return GIVE_PRIORITY_TO_GRAVE;
     }
 }

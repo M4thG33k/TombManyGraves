@@ -5,6 +5,7 @@ import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
 import com.m4thg33k.tombmanygraves.client.render.ModRenders;
 import com.m4thg33k.tombmanygraves.client.render.registers.ItemBlockRegisters;
 import com.m4thg33k.tombmanygraves.core.events.TombManyGravesClientEvents;
+import com.m4thg33k.tombmanygraves.core.events.TombManyGravesRenderEventHandler;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
@@ -33,6 +34,7 @@ public class ClientProxy extends CommonProxy {
     public void postinit(FMLPostInitializationEvent event) {
         super.postinit(event);
         MinecraftForge.EVENT_BUS.register(new TombManyGravesClientEvents());
+        MinecraftForge.EVENT_BUS.register(new TombManyGravesRenderEventHandler());
     }
 
 }
