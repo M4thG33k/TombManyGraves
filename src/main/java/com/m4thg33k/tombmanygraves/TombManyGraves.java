@@ -23,6 +23,7 @@ public class TombManyGraves {
 
     public static boolean isBaublesInstalled = false;
     public static boolean isEnderIOInstalled = false;
+    public static boolean isCosmeticArmorInstalled = false;
 
     public static Random rand = new Random(System.currentTimeMillis());
 
@@ -52,8 +53,10 @@ public class TombManyGraves {
         proxy.postinit(event);
         isBaublesInstalled = Loader.isModLoaded("Baubles");
         isEnderIOInstalled = Loader.isModLoaded("EnderIO");
+        isCosmeticArmorInstalled = Loader.isModLoaded("cosmeticarmorreworked");
         LogHelper.info("Baubles is" + (isBaublesInstalled ? "" : " NOT") + " installed.");
         LogHelper.info("EnderIO is" + (isEnderIOInstalled ? "" : " NOT") + " installed.");
+        LogHelper.info("Cosmetic Armor is" + (isCosmeticArmorInstalled ? "" : "NOT") + " installed.");
     }
 
     @Mod.EventHandler

@@ -3,6 +3,7 @@ package com.m4thg33k.tombmanygraves.client.gui;
 import baubles.common.container.InventoryBaubles;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.util.LogHelper;
+import lain.mods.cos.inventory.InventoryCosArmor;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -23,6 +24,7 @@ public class GuiDeathItems extends GuiScreen {
 
     private List<String> mainItems;
     private List<String> baubleItems;
+    private List<String> cosmeticItems;
 
     private Scrollbar scrollbar;
 
@@ -32,6 +34,7 @@ public class GuiDeathItems extends GuiScreen {
 
     private static String MAIN = "Main Inventory";
     private static String BAUBLES = "Baubles";
+    private static String COSMETIC = "Cosmetic Armor";
     private static String LINE = "-----------------------------";
     private static String EOF = "END OF FILE";
 
@@ -44,6 +47,7 @@ public class GuiDeathItems extends GuiScreen {
         this.deathList = deathList.copy();
         createListOfItemsInMainInventory();
         createListOfItemsInBaublesInventory();
+        createListOfItemsInCosmeticInventory();
 
         END_OF_FILE = new ArrayList<String>();
         END_OF_FILE.add(LINE);
@@ -71,15 +75,9 @@ public class GuiDeathItems extends GuiScreen {
 
         int endHeight = drawMainItems();
         endHeight = drawBaubleItems(endHeight);
+        endHeight = drawCosmeticItems(endHeight);
 
         drawEOF(endHeight);
-
-//        this.fontRendererObj.drawString("this is a test", this.width/2, this.height/2, 0);
-
-//        if (inBounds(xSize-12,0,12,150,mouseX,mouseY))
-//        {
-//            drawRect(xSize-12,0,12,150,0xFF0000);
-//        }
     }
 
     @Override
@@ -135,6 +133,31 @@ public class GuiDeathItems extends GuiScreen {
         return startHeight + counter*10;
     }
 
+    private int drawCosmeticItems(int startHeight)
+    {
+        if (cosmeticItems.size() < 4){
+            return startHeight;
+        }
+        int height;
+        int gLeft = getGuiLeft();
+        int gTop = getGuiTop();
+
+        int counter = 0;
+
+        for (int i=0; i < cosmeticItems.size(); i++)
+        {
+            height = startHeight + 10*i + (int)scrollbar.getCurrentScroll()*(-10) + 10;
+            counter += 1;
+            if (height < 4 || height >= ySize - 12)
+                {
+                    continue;
+                }
+            this.fontRendererObj.drawString(cosmeticItems.get(i), gLeft + 12, gTop + height, 0);
+        }
+
+        return startHeight + counter*10;
+    }
+
     private void drawEOF(int startHeight)
     {
         int height;
@@ -173,6 +196,20 @@ public class GuiDeathItems extends GuiScreen {
         inventoryBaubles.readNBT(tag);
 
         baubleItems = createListFromInventory(inventoryBaubles,BAUBLES);
+    }
+
+    private  void createListOfItemsInCosmeticInventory()
+    {
+        if (!TombManyGraves.isCosmeticArmorInstalled)
+        {
+            cosmeticItems = new ArrayList<String>();
+            return;
+        }
+        NBTTagCompound tag = deathList.getTagCompound().getCompoundTag("Cosmetic");
+        InventoryCosArmor cosArmor = new InventoryCosArmor();
+        cosArmor.readFromNBT(tag);
+
+        cosmeticItems = createListFromInventory(cosArmor, COSMETIC);
     }
 
     private List<String> createListFromInventory(IInventory inventory,String sectionName)

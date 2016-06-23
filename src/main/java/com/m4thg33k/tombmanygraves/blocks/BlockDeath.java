@@ -13,6 +13,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -29,7 +30,9 @@ import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Random;
 
 public class BlockDeath extends BaseBlock {
 
@@ -238,5 +241,9 @@ public class BlockDeath extends BaseBlock {
         return super.canRenderInLayer(state, layer);
     }
 
-
+    @Nullable
+    @Override
+    public Item getItemDropped(IBlockState state, Random rand, int fortune) {
+        return null;
+    }
 }

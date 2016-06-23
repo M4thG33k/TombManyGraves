@@ -6,9 +6,12 @@ import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.items.ModItems;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
+import lain.mods.cos.CosmeticArmorReworked;
+import lain.mods.cos.inventory.InventoryCosArmor;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
@@ -47,6 +50,13 @@ public class DeathInventory {
             PlayerHandler.getPlayerBaubles(player).saveNBT(baublesNBT);
         }
         allNBT.setTag("Baubles", baublesNBT);
+
+        NBTTagCompound cosmeticNBT = new NBTTagCompound();
+        if (TombManyGraves.isCosmeticArmorInstalled)
+        {
+            CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID()).writeToNBT(cosmeticNBT);
+        }
+        allNBT.setTag("Cosmetic", cosmeticNBT);
     }
 
     public static boolean writePortion(String fileName,String toWrite)
@@ -130,6 +140,13 @@ public class DeathInventory {
                 inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
                 InventoryHelper.dropInventoryItems(player.worldObj, player.getPosition(), inventoryBaubles);
             }
+
+            if (TombManyGraves.isCosmeticArmorInstalled)
+            {
+                InventoryCosArmor cosArmor = new InventoryCosArmor();
+                cosArmor.readFromNBT(allNBT.getCompoundTag("Cosmetic"));
+                InventoryHelper.dropInventoryItems(player.worldObj, player.getPosition(), cosArmor);
+            }
             reader.close();
         }
         catch (Exception e)
@@ -162,6 +179,19 @@ public class DeathInventory {
                 inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
                 PlayerHandler.setPlayerBaubles(player,inventoryBaubles);
             }
+
+            if (TombManyGraves.isCosmeticArmorInstalled)
+            {
+                InventoryCosArmor cosArmor = new InventoryCosArmor();
+                cosArmor.readFromNBT(allNBT.getCompoundTag("Cosmetic"));
+                InventoryCosArmor playerCos = CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID());
+                for (int i=0; i < ((IInventory)playerCos).getSizeInventory(); i++)
+                {
+                    ((IInventory)playerCos).setInventorySlotContents(i, ((IInventory)cosArmor).getStackInSlot(i));
+                }
+            }
+
+
             reader.close();
         }
         catch (Exception e)
@@ -196,6 +226,7 @@ public class DeathInventory {
             {
                 ChatHelper.sayMessage(player.worldObj, player, playerName + " had no items upon death!");
             }
+            reader.close();
         }
         catch (Exception e)
         {

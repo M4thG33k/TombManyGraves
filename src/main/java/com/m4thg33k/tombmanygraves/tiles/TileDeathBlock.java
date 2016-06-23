@@ -6,9 +6,11 @@ import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.blocks.BlockDeath;
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
-import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import crazypants.enderio.config.Config;
+import lain.mods.cos.CosmeticArmorReworked;
+import lain.mods.cos.InventoryManager;
+import lain.mods.cos.inventory.InventoryCosArmor;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.Enchantment;
@@ -40,6 +42,7 @@ public class TileDeathBlock extends TileEntity {
     private String playerName = "";
     private InventoryPlayer savedPlayerInventory = new InventoryPlayer(null);
     private NBTTagCompound baublesNBT = new NBTTagCompound();
+    private NBTTagCompound cosmeticNBT = new NBTTagCompound();
     private boolean locked = false;
 
     private UUID playerID = null;
@@ -87,6 +90,10 @@ public class TileDeathBlock extends TileEntity {
         {
             setBaubleInventory(player);
         }
+        if (TombManyGraves.isCosmeticArmorInstalled)
+        {
+            setCosmeticInventory(player);
+        }
 
         this.markDirty();
         worldObj.markAndNotifyBlock(pos, null, worldObj.getBlockState(pos), worldObj.getBlockState(pos), 1);
@@ -95,44 +102,16 @@ public class TileDeathBlock extends TileEntity {
     public void setBaubleInventory(EntityPlayer player)
     {
         baublesNBT = getBaublesNBTSansSoulbound(player, true);
-//        InventoryBaubles temp = new InventoryBaubles(player);
-//        InventoryBaubles playerBaubles = PlayerHandler.getPlayerBaubles(player);
-//
-//        IInventory tempInv = (IInventory)temp;
-//        IInventory playerBaublesInv = (IInventory) playerBaubles;
-//
-//        for (int i=0; i < tempInv.getSizeInventory(); i++)
-//        {
-//            if (isValidForGrave(playerBaublesInv.getStackInSlot(i)))
-//            {
-//                tempInv.setInventorySlotContents(i, playerBaublesInv.getStackInSlot(i).copy());
-//                playerBaublesInv.setInventorySlotContents(i, null);
-//            }
-//        }
-//
-//        temp.saveNBT(baublesNBT);
-
-
-//        PlayerHandler.getPlayerBaubles(player).saveNBT(baublesNBT);
-//        PlayerHandler.clearPlayerBaubles(player);
     }
 
     public void setThisInventory(InventoryPlayer inventoryPlayer)
     {
         this.savedPlayerInventory = getInventorySansSoulbound(inventoryPlayer, true);
-//        this.savedPlayerInventory = new InventoryPlayer(inventoryPlayer.player);
+    }
 
-//        for (int i = 0; i < this.savedPlayerInventory.getSizeInventory(); i++)
-//        {
-//            if (isValidForGrave(inventoryPlayer.getStackInSlot(i)))
-//            {
-//                this.savedPlayerInventory.setInventorySlotContents(i,inventoryPlayer.getStackInSlot(i).copy());
-//                inventoryPlayer.setInventorySlotContents(i, null);
-//            }
-//        }
-
-//        this.savedPlayerInventory.copyInventory(inventoryPlayer);
-//        inventoryPlayer.clear();
+    public void setCosmeticInventory(EntityPlayer player)
+    {
+        this.cosmeticNBT = getCosmeticNBTSansSoulbound(player, true);
     }
 
     public static boolean isValidForGrave(ItemStack stack)
@@ -198,6 +177,8 @@ public class TileDeathBlock extends TileEntity {
             camoState = b.getStateFromMeta(compound.getInteger(TAG_CAMO_META));
         }
 
+        cosmeticNBT = compound.getCompoundTag("CosmeticNBT");
+
         setRenderGround();
     }
 
@@ -226,6 +207,8 @@ public class TileDeathBlock extends TileEntity {
             compound.setInteger(TAG_CAMO_META, camoState.getBlock().getMetaFromState(camoState));
         }
 
+        compound.setTag("CosmeticNBT",cosmeticNBT);
+
         return compound;
     }
 
@@ -248,7 +231,6 @@ public class TileDeathBlock extends TileEntity {
             dropAllItems();
         }
         else {
-            //replacePlayerInventory(player);
             if (GIVE_PRIORITY_TO_GRAVE)
             {
                 swapPlayerInventory(player);
@@ -259,7 +241,6 @@ public class TileDeathBlock extends TileEntity {
             }
 
             if (TombManyGraves.isBaublesInstalled) {
-//                replaceBaublesInventory(player);
                 if (GIVE_PRIORITY_TO_GRAVE)
                 {
                     swapPlayerBaubles(player);
@@ -268,7 +249,18 @@ public class TileDeathBlock extends TileEntity {
                 {
                     replaceBaublesInventory(player);
                 }
+            }
 
+            if (TombManyGraves.isCosmeticArmorInstalled)
+            {
+                if (GIVE_PRIORITY_TO_GRAVE)
+                {
+                    swapPlayerCosmetic(player);
+                }
+                else
+                {
+                    replaceCosmeticInventory(player);
+                }
             }
         }
         worldObj.setBlockToAir(pos);
@@ -295,6 +287,20 @@ public class TileDeathBlock extends TileEntity {
         baublesNBT = playerB;
         replaceBaublesInventory(player);
         baublesNBT = new NBTTagCompound();
+    }
+
+    public void swapPlayerCosmetic(EntityPlayer player)
+    {
+        InventoryCosArmor playerCos = CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID());
+        NBTTagCompound playerC = new NBTTagCompound();
+        playerCos.writeToNBT(playerC);
+        InventoryCosArmor currentCos = new InventoryCosArmor();
+        currentCos.readFromNBT(playerC);
+        ((IInventory)playerCos).clear();
+        replaceCosmeticInventory(player);
+        cosmeticNBT = playerC;
+        replaceCosmeticInventory(player);
+        cosmeticNBT = new NBTTagCompound();
     }
 
     public void replaceSpecificInventory(EntityPlayer player, IInventory playerInventory, IInventory savedInventory)
@@ -332,6 +338,17 @@ public class TileDeathBlock extends TileEntity {
 
         baublesNBT = new NBTTagCompound();
 
+    }
+
+    public void replaceCosmeticInventory(EntityPlayer player)
+    {
+        InventoryCosArmor currentCos = CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID());
+        InventoryCosArmor savedCos = new InventoryCosArmor();
+        savedCos.readFromNBT(cosmeticNBT);
+
+        replaceSpecificInventory(player,currentCos,savedCos);
+
+        cosmeticNBT = new NBTTagCompound();
     }
 
     @Override
@@ -383,6 +400,12 @@ public class TileDeathBlock extends TileEntity {
             baubles.readNBT(baublesNBT);
             InventoryHelper.dropInventoryItems(worldObj, pos, baubles);
         }
+        if (TombManyGraves.isCosmeticArmorInstalled)
+        {
+            InventoryCosArmor cosArmor = new InventoryCosArmor();
+            cosArmor.readFromNBT(cosmeticNBT);
+            InventoryHelper.dropInventoryItems(worldObj, pos, cosArmor);
+        }
     }
 
     public static boolean isInventoryEmpty(EntityPlayer player)
@@ -392,6 +415,11 @@ public class TileDeathBlock extends TileEntity {
         if (TombManyGraves.isBaublesInstalled)
         {
             toReturn = toReturn && isSpecificInventoryEmpty(PlayerHandler.getPlayerBaubles(player));
+        }
+
+        if (TombManyGraves.isCosmeticArmorInstalled)
+        {
+            toReturn = toReturn && isSpecificInventoryEmpty(CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID()));
         }
 
         return toReturn;
@@ -526,17 +554,6 @@ public class TileDeathBlock extends TileEntity {
     {
         InventoryPlayer toReturn = new InventoryPlayer(original.player);
         copyInventoryWithoutSoulbound(original, toReturn, clearOriginal);
-//        for (int i=0; i<toReturn.getSizeInventory(); i++)
-//        {
-//            if (isValidForGrave(original.getStackInSlot(i)))
-//            {
-//                toReturn.setInventorySlotContents(i, original.getStackInSlot(i).copy());
-//                if (clearOriginal)
-//                {
-//                    original.setInventorySlotContents(i, null);
-//                }
-//            }
-//        }
         return toReturn;
     }
 
@@ -546,22 +563,19 @@ public class TileDeathBlock extends TileEntity {
         InventoryBaubles current = PlayerHandler.getPlayerBaubles(player);
 
         copyInventoryWithoutSoulbound(current, toReturn, clearOriginal);
-//        IInventory retInv = (IInventory) toReturn;
-//        IInventory currentInv = (IInventory) current;
-
-//        for (int i=0; i<retInv.getSizeInventory(); i++)
-//        {
-//            if (isValidForGrave(currentInv.getStackInSlot(i)))
-//            {
-//                retInv.setInventorySlotContents(i, currentInv.getStackInSlot(i).copy());
-//                if (clearOriginal)
-//                {
-//                    currentInv.setInventorySlotContents(i, null);
-//                }
-//            }
-//        }
         NBTTagCompound compound = new NBTTagCompound();
         toReturn.saveNBT(compound);
+        return compound;
+    }
+
+    public static NBTTagCompound getCosmeticNBTSansSoulbound(EntityPlayer player, boolean clearOriginal)
+    {
+        InventoryCosArmor toReturn = new InventoryCosArmor();
+        InventoryCosArmor current = CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID());
+
+        copyInventoryWithoutSoulbound(current, toReturn, clearOriginal);
+        NBTTagCompound compound = new NBTTagCompound();
+        toReturn.writeToNBT(compound);
         return compound;
     }
 
