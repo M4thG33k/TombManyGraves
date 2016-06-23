@@ -1,15 +1,11 @@
 package com.m4thg33k.tombmanygraves.client.gui;
 
-import baubles.common.container.InventoryBaubles;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
-import com.m4thg33k.tombmanygraves.core.util.LogHelper;
-import lain.mods.cos.inventory.InventoryCosArmor;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 
@@ -46,8 +42,8 @@ public class GuiDeathItems extends GuiScreen {
         this.player = player;
         this.deathList = deathList.copy();
         createListOfItemsInMainInventory();
-        createListOfItemsInBaublesInventory();
-        createListOfItemsInCosmeticInventory();
+//        createListOfItemsInBaublesInventory();
+//        createListOfItemsInCosmeticInventory();
 
         END_OF_FILE = new ArrayList<String>();
         END_OF_FILE.add(LINE);
@@ -74,8 +70,8 @@ public class GuiDeathItems extends GuiScreen {
         scrollbar.draw(this);
 
         int endHeight = drawMainItems();
-        endHeight = drawBaubleItems(endHeight);
-        endHeight = drawCosmeticItems(endHeight);
+//        endHeight = drawBaubleItems(endHeight);
+//        endHeight = drawCosmeticItems(endHeight);
 
         drawEOF(endHeight);
     }
@@ -107,56 +103,56 @@ public class GuiDeathItems extends GuiScreen {
         return counter*10;
     }
 
-    private int drawBaubleItems(int startHeight)
-    {
-        if (baubleItems.size() < 4)
-        {
-            return startHeight;
-        }
-        int height;
-        int gLeft = getGuiLeft();
-        int gTop = getGuiTop();
-
-        int counter = 0;
-
-        for (int i=0; i<baubleItems.size(); i++)
-        {
-            height = startHeight + 10*i + (int)scrollbar.getCurrentScroll()*(-10) + 10;
-            counter += 1;
-            if (height < 4 || height >= ySize - 12)
-            {
-                continue;
-            }
-            this.fontRendererObj.drawString(baubleItems.get(i), gLeft + 12, gTop + height, 0);
-        }
-
-        return startHeight + counter*10;
-    }
-
-    private int drawCosmeticItems(int startHeight)
-    {
-        if (cosmeticItems.size() < 4){
-            return startHeight;
-        }
-        int height;
-        int gLeft = getGuiLeft();
-        int gTop = getGuiTop();
-
-        int counter = 0;
-
-        for (int i=0; i < cosmeticItems.size(); i++)
-        {
-            height = startHeight + 10*i + (int)scrollbar.getCurrentScroll()*(-10) + 10;
-            counter += 1;
-            if (height < 4 || height >= ySize - 12)
-                {
-                    continue;
-                }
-            this.fontRendererObj.drawString(cosmeticItems.get(i), gLeft + 12, gTop + height, 0);
-        }
-
-        return startHeight + counter*10;
-    }
+//    private int drawBaubleItems(int startHeight)
+//    {
+//        if (baubleItems.size() < 4)
+//        {
+//            return startHeight;
+//        }
+//        int height;
+//        int gLeft = getGuiLeft();
+//        int gTop = getGuiTop();
+//
+//        int counter = 0;
+//
+//        for (int i=0; i<baubleItems.size(); i++)
+//        {
+//            height = startHeight + 10*i + (int)scrollbar.getCurrentScroll()*(-10) + 10;
+//            counter += 1;
+//            if (height < 4 || height >= ySize - 12)
+//            {
+//                continue;
+//            }
+//            this.fontRendererObj.drawString(baubleItems.get(i), gLeft + 12, gTop + height, 0);
+//        }
+//
+//        return startHeight + counter*10;
+//    }
+//
+//    private int drawCosmeticItems(int startHeight)
+//    {
+//        if (cosmeticItems.size() < 4){
+//            return startHeight;
+//        }
+//        int height;
+//        int gLeft = getGuiLeft();
+//        int gTop = getGuiTop();
+//
+//        int counter = 0;
+//
+//        for (int i=0; i < cosmeticItems.size(); i++)
+//        {
+//            height = startHeight + 10*i + (int)scrollbar.getCurrentScroll()*(-10) + 10;
+//            counter += 1;
+//            if (height < 4 || height >= ySize - 12)
+//                {
+//                    continue;
+//                }
+//            this.fontRendererObj.drawString(cosmeticItems.get(i), gLeft + 12, gTop + height, 0);
+//        }
+//
+//        return startHeight + counter*10;
+//    }
 
     private void drawEOF(int startHeight)
     {
@@ -184,33 +180,33 @@ public class GuiDeathItems extends GuiScreen {
         mainItems = createListFromInventory(inventoryPlayer,MAIN);
     }
 
-    private void createListOfItemsInBaublesInventory()
-    {
-        if (!TombManyGraves.isBaublesInstalled)
-        {
-            baubleItems = new ArrayList<String>();
-            return;
-        }
-        NBTTagCompound tag = deathList.getTagCompound().getCompoundTag("Baubles");
-        InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
-        inventoryBaubles.readNBT(tag);
+//    private void createListOfItemsInBaublesInventory()
+//    {
+//        if (!TombManyGraves.isBaublesInstalled)
+//        {
+//            baubleItems = new ArrayList<String>();
+//            return;
+//        }
+//        NBTTagCompound tag = deathList.getTagCompound().getCompoundTag("Baubles");
+//        InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
+//        inventoryBaubles.readNBT(tag);
+//
+//        baubleItems = createListFromInventory(inventoryBaubles,BAUBLES);
+//    }
 
-        baubleItems = createListFromInventory(inventoryBaubles,BAUBLES);
-    }
-
-    private  void createListOfItemsInCosmeticInventory()
-    {
-        if (!TombManyGraves.isCosmeticArmorInstalled)
-        {
-            cosmeticItems = new ArrayList<String>();
-            return;
-        }
-        NBTTagCompound tag = deathList.getTagCompound().getCompoundTag("Cosmetic");
-        InventoryCosArmor cosArmor = new InventoryCosArmor();
-        cosArmor.readFromNBT(tag);
-
-        cosmeticItems = createListFromInventory(cosArmor, COSMETIC);
-    }
+//    private  void createListOfItemsInCosmeticInventory()
+//    {
+//        if (!TombManyGraves.isCosmeticArmorInstalled)
+//        {
+//            cosmeticItems = new ArrayList<String>();
+//            return;
+//        }
+//        NBTTagCompound tag = deathList.getTagCompound().getCompoundTag("Cosmetic");
+//        InventoryCosArmor cosArmor = new InventoryCosArmor();
+//        cosArmor.readFromNBT(tag);
+//
+//        cosmeticItems = createListFromInventory(cosArmor, COSMETIC);
+//    }
 
     private List<String> createListFromInventory(IInventory inventory,String sectionName)
     {

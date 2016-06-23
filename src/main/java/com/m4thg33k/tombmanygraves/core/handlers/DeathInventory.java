@@ -1,17 +1,12 @@
 package com.m4thg33k.tombmanygraves.core.handlers;
 
-import baubles.common.container.InventoryBaubles;
-import baubles.common.lib.PlayerHandler;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.items.ModItems;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
-import lain.mods.cos.CosmeticArmorReworked;
-import lain.mods.cos.inventory.InventoryCosArmor;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
@@ -19,7 +14,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Files;
@@ -45,18 +39,18 @@ public class DeathInventory {
 //      player.inventory.writeToNBT(tagList);
         allNBT.setTag("Main", tagList);
 
-        NBTTagCompound baublesNBT = new NBTTagCompound();
-        if (TombManyGraves.isBaublesInstalled) {
-            PlayerHandler.getPlayerBaubles(player).saveNBT(baublesNBT);
-        }
-        allNBT.setTag("Baubles", baublesNBT);
+//        NBTTagCompound baublesNBT = new NBTTagCompound();
+//        if (TombManyGraves.isBaublesInstalled) {
+//            PlayerHandler.getPlayerBaubles(player).saveNBT(baublesNBT);
+//        }
+//        allNBT.setTag("Baubles", baublesNBT);
 
-        NBTTagCompound cosmeticNBT = new NBTTagCompound();
-        if (TombManyGraves.isCosmeticArmorInstalled)
-        {
-            CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID()).writeToNBT(cosmeticNBT);
-        }
-        allNBT.setTag("Cosmetic", cosmeticNBT);
+//        NBTTagCompound cosmeticNBT = new NBTTagCompound();
+//        if (TombManyGraves.isCosmeticArmorInstalled)
+//        {
+//            CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID()).writeToNBT(cosmeticNBT);
+//        }
+//        allNBT.setTag("Cosmetic", cosmeticNBT);
     }
 
     public static boolean writePortion(String fileName,String toWrite)
@@ -134,19 +128,19 @@ public class DeathInventory {
             inventoryPlayer.readFromNBT(allNBT.getTagList("Main",10));
             InventoryHelper.dropInventoryItems(player.worldObj, player.getPosition(), inventoryPlayer);
 
-            if (TombManyGraves.isBaublesInstalled)
-            {
-                InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
-                inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
-                InventoryHelper.dropInventoryItems(player.worldObj, player.getPosition(), inventoryBaubles);
-            }
-
-            if (TombManyGraves.isCosmeticArmorInstalled)
-            {
-                InventoryCosArmor cosArmor = new InventoryCosArmor();
-                cosArmor.readFromNBT(allNBT.getCompoundTag("Cosmetic"));
-                InventoryHelper.dropInventoryItems(player.worldObj, player.getPosition(), cosArmor);
-            }
+//            if (TombManyGraves.isBaublesInstalled)
+//            {
+//                InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
+//                inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
+//                InventoryHelper.dropInventoryItems(player.worldObj, player.getPosition(), inventoryBaubles);
+//            }
+//
+//            if (TombManyGraves.isCosmeticArmorInstalled)
+//            {
+//                InventoryCosArmor cosArmor = new InventoryCosArmor();
+//                cosArmor.readFromNBT(allNBT.getCompoundTag("Cosmetic"));
+//                InventoryHelper.dropInventoryItems(player.worldObj, player.getPosition(), cosArmor);
+//            }
             reader.close();
         }
         catch (Exception e)
@@ -173,23 +167,23 @@ public class DeathInventory {
             allNBT = JsonToNBT.getTagFromJson(fileData);
             player.inventory.readFromNBT(allNBT.getTagList("Main",10));
 
-            if (TombManyGraves.isBaublesInstalled)
-            {
-                InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
-                inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
-                PlayerHandler.setPlayerBaubles(player,inventoryBaubles);
-            }
-
-            if (TombManyGraves.isCosmeticArmorInstalled)
-            {
-                InventoryCosArmor cosArmor = new InventoryCosArmor();
-                cosArmor.readFromNBT(allNBT.getCompoundTag("Cosmetic"));
-                InventoryCosArmor playerCos = CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID());
-                for (int i=0; i < ((IInventory)playerCos).getSizeInventory(); i++)
-                {
-                    ((IInventory)playerCos).setInventorySlotContents(i, ((IInventory)cosArmor).getStackInSlot(i));
-                }
-            }
+//            if (TombManyGraves.isBaublesInstalled)
+//            {
+//                InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
+//                inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
+//                PlayerHandler.setPlayerBaubles(player,inventoryBaubles);
+//            }
+//
+//            if (TombManyGraves.isCosmeticArmorInstalled)
+//            {
+//                InventoryCosArmor cosArmor = new InventoryCosArmor();
+//                cosArmor.readFromNBT(allNBT.getCompoundTag("Cosmetic"));
+//                InventoryCosArmor playerCos = CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID());
+//                for (int i=0; i < ((IInventory)playerCos).getSizeInventory(); i++)
+//                {
+//                    ((IInventory)playerCos).setInventorySlotContents(i, ((IInventory)cosArmor).getStackInSlot(i));
+//                }
+//            }
 
 
             reader.close();
