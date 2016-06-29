@@ -32,13 +32,15 @@ public class TombManyGravesConfigs {
     public static boolean GIVE_PRIORITY_TO_GRAVE_ITEMS;
     public static boolean DISPLAY_GRAVE_NAME;
 
+    public static int GRAVE_SKULL_RENDER_TYPE;
+
     public static void preInit(FMLPreInitializationEvent event)
     {
         config = new Configuration(event.getSuggestedConfigurationFile());
         config.load();
 
         ENABLE_GRAVES = config.get("Graves","enableGraves",true,"Set to false to disable graves spawning upon player deaths, saving their inventory. (Defaults to true)").getBoolean();
-        GRAVE_RANGE = config.get("Graves","graveSearchRadius",9,"This is the radius that will be searched to find an air block to place the grave. (Radius = abs(max{x,y,z})). Note: if death happens with y<0, it will center its search around y=1 instead. (Defaults to 9)",0,25).getInt();
+        GRAVE_RANGE = config.get("Graves","graveSearchRadius",9,"This is the radius that will be searched to find an air block to place the grave. (Radius = abs(max{x,y,z})). Note: if death happens with y<0, it will center its search around y=graveRadius (unless 'startVoidSearchAt1' is true). (Defaults to 9, max of 32)",0,32).getInt();
         if (GRAVE_RANGE<0)
         {
             GRAVE_RANGE = 0;
@@ -74,6 +76,12 @@ public class TombManyGravesConfigs {
         DROP_ITEMS_ON_GROUND = config.get("Graves","dropItemsOnGround",false,"If true, the graves will drop all items on the ground when 'broken' instead of attempting to place them in their original slots. (Defaults to false)").getBoolean();
         GIVE_PRIORITY_TO_GRAVE_ITEMS = config.get("Graves","givePriorityToGraveItems",true,"If true, grave items will be returned to their original slots even if they aren't empty. Any item that was in that slot will be dropped on the ground instead. You can right-click your grave to change to the alternate behavior in-game. (Defaults to true)").getBoolean();
         DISPLAY_GRAVE_NAME = config.get("Graves","displayGraveName",true,"If true, graves will display their owner's name above them when looking at the block. (Defaults to true)").getBoolean();
+
+        GRAVE_SKULL_RENDER_TYPE = config.get("Graves","graveSkullRenderType",3,"Changing this value changes how the grave skull renders. 0 = Skeleton, 1 = Wither Skeleton, 2 = Zombie, 3 = Player, 4 = Creeper. Any value outside this range will be set to 3 instead. (Defaults to 3)").getInt();
+        if (GRAVE_SKULL_RENDER_TYPE < 0 || GRAVE_SKULL_RENDER_TYPE > 4)
+        {
+            GRAVE_SKULL_RENDER_TYPE = 3;
+        }
 
         config.save();
     }

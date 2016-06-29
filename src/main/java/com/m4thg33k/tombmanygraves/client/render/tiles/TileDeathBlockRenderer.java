@@ -1,5 +1,6 @@
 package com.m4thg33k.tombmanygraves.client.render.tiles;
 
+import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -8,6 +9,7 @@ import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
@@ -16,6 +18,8 @@ import java.util.Random;
 public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
 
     RenderItem itemRenderer;
+    private int skullMeta = TombManyGravesConfigs.GRAVE_SKULL_RENDER_TYPE;
+    private ItemStack defaultSkull = new ItemStack(Items.SKULL,1,skullMeta);
 
     public TileDeathBlockRenderer()
     {
@@ -37,7 +41,15 @@ public class TileDeathBlockRenderer extends TileEntitySpecialRenderer{
 
         GlStateManager.translate(x+0.5,y+0.5,z+0.5);
 
-        ItemStack skull = tileDeathBlock.getSkull();
+        ItemStack skull;
+        if (skullMeta == 3)
+        {
+            skull = tileDeathBlock.getSkull();
+        }
+        else
+        {
+            skull = defaultSkull;
+        }
 
         Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
