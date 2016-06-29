@@ -40,82 +40,19 @@ public class TombManyGravesCommonEvents {
     }
 
 
-//    @SubscribeEvent(priority = EventPriority.NORMAL)
-//    public void handleDeathDrops(PlayerDropsEvent event)
-//    {
-//        boolean flag1 = event.getEntityPlayer().worldObj.getGameRules().getBoolean("keepInventory");
-//        boolean flag2 = event.getEntityPlayer().worldObj.isRemote;
-//        boolean flag3 = TileDeathBlock.isInventoryEmpty(event.getEntityPlayer());
-//        if (event.getEntityPlayer().worldObj.getGameRules().getBoolean("keepInventory") || event.getEntityPlayer().worldObj.isRemote || TileDeathBlock.isInventoryEmpty(event.getEntityPlayer()))
-//        {
-//            return;
-//        }
-//
-//        EntityPlayer player = event.getEntityPlayer();
-//
-//        if (TileDeathBlock.isInventoryEmpty(event.getEntityPlayer()))
-//        {
-//            ChatHelper.sayMessage(player.worldObj, player, "Place of death (x,y,z) = (" + (int)player.posX + "," + (int)player.posY + "," + (int)player.posZ + ")");
-//            ChatHelper.sayMessage(player.worldObj, player, "(But your inventory was empty)");
-//            return;
-//        }
-//
-//        //write the inventory backup file
-//        DeathInventoryHandler.createDeathInventory(event.getEntityPlayer());
-//
-//        //create the grave
-//        if (TombManyGravesConfigs.ENABLE_GRAVES)
-//        {
-//            IBlockState state = ModBlocks.blockDeath.getDefaultState();
-//            BlockPos posToPlace = findValidLocation(player.worldObj, player.getPosition());
-//            if (posToPlace.getY() != -1)
-//            {
-//                ChatHelper.sayMessage(player.worldObj, player, "Place of death (x,y,z) = (" + posToPlace.getX() + "," + posToPlace.getY() + "," + posToPlace.getZ() + ")");
-//                player.worldObj.setBlockState(posToPlace, state);
-//                TileEntity tileEntity = player.worldObj.getTileEntity(posToPlace);
-//                if (tileEntity != null && tileEntity instanceof TileDeathBlock)
-//                {
-//                    ((TileDeathBlock)tileEntity).grabPlayer(player);
-//
-//                    IBlockState ground = getBlockBelow(player.worldObj, posToPlace);
-//
-//                    if (ground.getMaterial() == Material.AIR)
-//                    {
-//                        ground = ModBlocks.blockDeath.getDefaultState();
-//                    }
-//                    else if (ground.getMaterial() == Material.GRASS)
-//                    {
-//                        ground = Blocks.DIRT.getDefaultState();
-//                    }
-//                    ((TileDeathBlock) tileEntity).setCamoState(ground);
-//                }
-//                else
-//                {
-//                    LogHelper.info("Error! Death block tile not found!");
-//                }
-//            }
-//            else
-//            {
-//                ChatHelper.sayMessage(player.worldObj,player,"Could not find suitable grave location.");
-//            }
-//        }
-//
-//    }
-
-
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void savePlayerInventoryOnDeath(LivingDeathEvent event)
     {
-        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer)event.getEntityLiving()).worldObj.isRemote)
-        {
-            if (TileDeathBlock.isInventoryEmpty((EntityPlayer)event.getEntityLiving())){
-                DeathInventory.clearLatest((EntityPlayer)event.getEntityLiving());
-            }
-            else
-            {
-                DeathInventoryHandler.createDeathInventory((EntityPlayer)event.getEntityLiving());
-            }
-        }
+//        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer)event.getEntityLiving()).worldObj.isRemote)
+//        {
+//            if (TileDeathBlock.isInventoryEmpty((EntityPlayer)event.getEntityLiving())){
+//                DeathInventory.clearLatest((EntityPlayer)event.getEntityLiving());
+//            }
+//            else
+//            {
+//                DeathInventoryHandler.createDeathInventory((EntityPlayer)event.getEntityLiving());
+//            }
+//        }
     }
 
     @SubscribeEvent(priority = EventPriority.NORMAL)
@@ -127,49 +64,47 @@ public class TombManyGravesCommonEvents {
             BlockPos pos = player.getPosition();
             LogHelper.info(player.getName() + " died in dimension " +  player.dimension + " at (x,y,z) = (" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + ")." + (TombManyGravesConfigs.ENABLE_GRAVES ? " Their grave may be near!" : ""));
         }
-        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && TombManyGravesConfigs.ENABLE_GRAVES && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer) event.getEntityLiving()).worldObj.isRemote)
+        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer) event.getEntityLiving()).worldObj.isRemote)
         {
-            EntityPlayer player = (EntityPlayer)event.getEntityLiving();
+            boolean gravePlaced = false;
+            if (TombManyGravesConfigs.ENABLE_GRAVES) {
+                EntityPlayer player = (EntityPlayer) event.getEntityLiving();
 
-            if (!TileDeathBlock.isInventoryEmpty(player))
-            {
-                IBlockState state = ModBlocks.blockDeath.getDefaultState();
-                BlockPos posToPlace = findValidLocation(player.worldObj,player.getPosition());
-                if (posToPlace.getY() != -1)
-                {
-                    ChatHelper.sayMessage(player.worldObj, player, "Place of death (x,y,z) = (" + posToPlace.getX() + "," + posToPlace.getY() + "," + posToPlace.getZ() + ")");
-                    player.worldObj.setBlockState(posToPlace, state);
-                    TileEntity tileEntity = player.worldObj.getTileEntity(posToPlace);
-                    if (tileEntity != null && tileEntity instanceof TileDeathBlock)
-                    {
-                        ((TileDeathBlock)tileEntity).grabPlayer(player);
+                if (!TileDeathBlock.isInventoryEmpty(player)) {
+                    IBlockState state = ModBlocks.blockDeath.getDefaultState();
+                    BlockPos posToPlace = findValidLocation(player.worldObj, player.getPosition());
+                    DeathInventoryHandler.createDeathInventory(player, posToPlace);
+                    if (posToPlace.getY() != -1) {
+                        ChatHelper.sayMessage(player.worldObj, player, "Place of death (x,y,z) = (" + posToPlace.getX() + "," + posToPlace.getY() + "," + posToPlace.getZ() + ")");
+                        player.worldObj.setBlockState(posToPlace, state);
+                        TileEntity tileEntity = player.worldObj.getTileEntity(posToPlace);
+                        if (tileEntity != null && tileEntity instanceof TileDeathBlock) {
+                            ((TileDeathBlock) tileEntity).grabPlayer(player);
 
-                        IBlockState state1 = getBlockBelow(player.worldObj,posToPlace);
+                            IBlockState state1 = getBlockBelow(player.worldObj, posToPlace);
 
-                        if (state1.getMaterial() == Material.AIR)
-                        {
-                            state1 = ModBlocks.blockDeath.getDefaultState();
+                            if (state1.getMaterial() == Material.AIR) {
+                                state1 = ModBlocks.blockDeath.getDefaultState();
+                            } else if (state1.getMaterial() == Material.GRASS) {
+                                state1 = Blocks.DIRT.getDefaultState();
+                            }
+                            ((TileDeathBlock) tileEntity).setCamoState(state1);
+                            gravePlaced = true;
+                        } else {
+                            LogHelper.info("Error! Death block tile not found!");
                         }
-                        else if (state1.getMaterial() == Material.GRASS)
-                        {
-                            state1 = Blocks.DIRT.getDefaultState();
-                        }
-                        ((TileDeathBlock) tileEntity).setCamoState(state1);
+                    } else {
+                        ChatHelper.sayMessage(player.worldObj, player, "Could not find suitable grave location.");
                     }
-                    else
-                    {
-                        LogHelper.info("Error! Death block tile not found!");
-                    }
-                }
-                else
-                {
-                    ChatHelper.sayMessage(player.worldObj,player,"Could not find suitable grave location.");
+                } else {
+                    ChatHelper.sayMessage(player.worldObj, player, "Place of death (x,y,z) = (" + (int) player.posX + "," + (int) player.posY + "," + (int) player.posZ + ")");
+                    ChatHelper.sayMessage(player.worldObj, player, "(But your inventory was empty)");
+                    DeathInventory.clearLatest((EntityPlayer)event.getEntityLiving());
                 }
             }
             else
             {
-                ChatHelper.sayMessage(player.worldObj, player, "Place of death (x,y,z) = (" + (int)player.posX + "," + (int)player.posY + "," + (int)player.posZ + ")");
-                ChatHelper.sayMessage(player.worldObj, player, "(But your inventory was empty)");
+                DeathInventoryHandler.createDeathInventory((EntityPlayer)event.getEntityLiving(),((EntityPlayer) event.getEntityLiving()).playerLocation);
             }
         }
     }

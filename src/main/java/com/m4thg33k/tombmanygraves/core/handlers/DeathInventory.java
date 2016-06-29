@@ -6,6 +6,7 @@ import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.items.ModItems;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
+import com.sun.istack.internal.Nullable;
 import lain.mods.cos.CosmeticArmorReworked;
 import lain.mods.cos.inventory.InventoryCosArmor;
 import net.minecraft.entity.item.EntityItem;
@@ -17,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.BlockPos;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,7 +35,7 @@ public class DeathInventory {
 
     private NBTTagCompound allNBT;
 
-    public DeathInventory(EntityPlayer player) {
+    public DeathInventory(EntityPlayer player, @Nullable BlockPos pos) {
         allNBT = new NBTTagCompound();
 
         NBTTagList tagList = new NBTTagList();
@@ -57,6 +59,13 @@ public class DeathInventory {
             CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID()).writeToNBT(cosmeticNBT);
         }
         allNBT.setTag("Cosmetic", cosmeticNBT);
+
+        NBTTagCompound miscNBT = new NBTTagCompound();
+        boolean flag = pos == null;
+        miscNBT.setInteger("x",flag ? -1 : pos.getX());
+        miscNBT.setInteger("y",flag ? -1 : pos.getY());
+        miscNBT.setInteger("z",flag ? -1 : pos.getZ());
+        allNBT.setTag("Misc",miscNBT);
     }
 
     public static boolean writePortion(String fileName,String toWrite)
@@ -84,6 +93,9 @@ public class DeathInventory {
         String filename = "/" + player.getName();
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
         String filePostfix =  timeStamp + ".json";
+
+        allNBT.getCompoundTag("Misc").setString("Timestamp",timeStamp);
+
 
         String fullFileName = TombManyGraves.file + DeathInventoryHandler.FILE_PREFIX + filename + "#" + filePostfix;
 

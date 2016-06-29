@@ -5,6 +5,8 @@ import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import lain.mods.cos.inventory.InventoryCosArmor;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
@@ -15,6 +17,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GuiDeathItems extends GuiScreen {
 
@@ -22,6 +25,7 @@ public class GuiDeathItems extends GuiScreen {
 
     private ItemStack deathList;
 
+    private List<String> header;
     private List<String> mainItems;
     private List<String> baubleItems;
     private List<String> cosmeticItems;
@@ -45,6 +49,7 @@ public class GuiDeathItems extends GuiScreen {
         super();
         this.player = player;
         this.deathList = deathList.copy();
+        createHeader();
         createListOfItemsInMainInventory();
         createListOfItemsInBaublesInventory();
         createListOfItemsInCosmeticInventory();
@@ -73,7 +78,8 @@ public class GuiDeathItems extends GuiScreen {
         scrollbar.update(this,mouseX,mouseY);
         scrollbar.draw(this);
 
-        int endHeight = drawMainItems();
+        int endHeight = drawHeader();
+        endHeight = drawMainItems(endHeight);
         endHeight = drawBaubleItems(endHeight);
         endHeight = drawCosmeticItems(endHeight);
 
@@ -85,9 +91,31 @@ public class GuiDeathItems extends GuiScreen {
         return false;
     }
 
-    private int drawMainItems()
+    private int drawHeader()
     {
         int height = 0;
+        int gLeft =getGuiLeft();
+        int gTop = getGuiTop();
+
+        int counter = 0;
+
+        for (int i=0; i < header.size(); i++)
+        {
+            height = 10 * i + (int)scrollbar.getCurrentScroll()*(-10)+10;
+            counter += 1;
+            if (height < 4 || height >= ySize - 12)
+            {
+                continue;
+            }
+            this.fontRendererObj.drawString(header.get(i), gLeft + 12, gTop + height, 0);
+        }
+
+        return counter * 10;
+    }
+
+    private int drawMainItems(int startHeight)
+    {
+        int height ;
         int gLeft = getGuiLeft();
         int gTop = getGuiTop();
 
@@ -95,7 +123,7 @@ public class GuiDeathItems extends GuiScreen {
 
         for (int i=0; i<mainItems.size();i++)
         {
-            height = 10*i + (int)scrollbar.getCurrentScroll()*(-10) + 10;
+            height = startHeight + 10*i + (int)scrollbar.getCurrentScroll()*(-10) + 10;
             counter += 1;
             if (height < 4 || height >= ySize - 12)
             {
@@ -104,7 +132,7 @@ public class GuiDeathItems extends GuiScreen {
             this.fontRendererObj.drawString(mainItems.get(i), gLeft + 12, gTop + height, 0);
         }
 
-        return counter*10;
+        return startHeight + counter*10;
     }
 
     private int drawBaubleItems(int startHeight)
@@ -175,6 +203,29 @@ public class GuiDeathItems extends GuiScreen {
         }
     }
 
+    private void createHeader()
+    {
+        header = new ArrayList<>();
+
+        NBTTagCompound tagCompound = deathList.getTagCompound();
+        if (tagCompound.hasKey("Misc"))
+        {
+            NBTTagCompound misc = tagCompound.getCompoundTag("Misc");
+            int x = misc.getInteger("x");
+            int y = misc.getInteger("y");
+            int z = misc.getInteger("z");
+            if (y < 0)
+            {
+                header.add("No grave exists.");
+            }
+            else
+            {
+                header.add("Grave at: (x,y,z) = (" + x + "," + y + "," + z + ")");
+            }
+            header.add("Timestamp: " + misc.getString("Timestamp"));
+        }
+    }
+
     private void createListOfItemsInMainInventory()
     {
         NBTTagList tagList = deathList.getTagCompound().getTagList("Main",10);
@@ -231,6 +282,11 @@ public class GuiDeathItems extends GuiScreen {
                     name = name.substring(0,25) + "...";
                 }
                 stringList.add(itemNumber + ") " + name + (inventory.getStackInSlot(i).stackSize>1 ? " x" + inventory.getStackInSlot(i).stackSize : ""));
+                Map<Enchantment, Integer> enchants = EnchantmentHelper.getEnchantments(inventory.getStackInSlot(i));
+                for (Enchantment key : enchants.keySet())
+                {
+                    stringList.add("  -> " + key.getTranslatedName(enchants.get(key)));// key.getName() + ": " + enchants.get(key));
+                }
                 itemNumber += 1;
             }
         }

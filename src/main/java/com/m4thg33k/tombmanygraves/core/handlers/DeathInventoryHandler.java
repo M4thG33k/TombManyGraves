@@ -10,6 +10,7 @@ import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.BlockPos;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 
 import java.io.BufferedReader;
@@ -35,7 +36,7 @@ public class DeathInventoryHandler {
         }
     }
 
-    public static boolean createDeathInventory(EntityPlayer player)
+    public static boolean createDeathInventory(EntityPlayer player, BlockPos gravePos)
     {
         checkFilePath();
 
@@ -44,18 +45,18 @@ public class DeathInventoryHandler {
             return false;
         }
 
-        DeathInventory deathInventory = new DeathInventory(player);
+        DeathInventory deathInventory = new DeathInventory(player, gravePos);
         return deathInventory.writeFile(player);
     }
 
     public static boolean restorePlayerInventory(EntityPlayer player, String timestamp) {
-        DeathInventory deathInventory = new DeathInventory(player);
+        DeathInventory deathInventory = new DeathInventory(player,null);
         return deathInventory.restoreAll(player, timestamp);
     }
 
     public static boolean dropPlayerInventory(EntityPlayer player, String timestamp)
     {
-        DeathInventory deathInventory = new DeathInventory(player);
+        DeathInventory deathInventory = new DeathInventory(player,null);
         return deathInventory.dropAll(player, timestamp);
     }
 
@@ -77,7 +78,7 @@ public class DeathInventoryHandler {
 
     public static boolean getDeathList(EntityPlayer player, String playerName, String timestamp)
     {
-        DeathInventory deathInventory = new DeathInventory(player);
+        DeathInventory deathInventory = new DeathInventory(player,null);
         return deathInventory.getDeathList(player, playerName, timestamp);
     }
 }

@@ -122,7 +122,8 @@ public class TileDeathBlock extends TileEntity {
             return false;
         }
         boolean notSoulbound = !hasSoulboundEnchantment(stack);
-        return notSoulbound;
+        boolean isBook = (stack.getItem() == Items.ENCHANTED_BOOK);
+        return isBook || notSoulbound;
     }
 
     public void onRightClick(EntityPlayer player)
@@ -429,7 +430,7 @@ public class TileDeathBlock extends TileEntity {
     {
         for (int i=0; i < inventory.getSizeInventory(); i++)
         {
-            if (inventory.getStackInSlot(i) != null && inventory.getStackInSlot(i).stackSize > 0 && !hasSoulboundEnchantment(inventory.getStackInSlot(i)))
+            if (inventory.getStackInSlot(i) != null && inventory.getStackInSlot(i).stackSize > 0 && (inventory.getStackInSlot(i).getItem() == Items.ENCHANTED_BOOK || !hasSoulboundEnchantment(inventory.getStackInSlot(i))))
             {
                 return false;
             }
