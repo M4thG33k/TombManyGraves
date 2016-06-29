@@ -34,6 +34,8 @@ public class TombManyGravesConfigs {
 
     public static int GRAVE_SKULL_RENDER_TYPE;
 
+    public static boolean ASCEND_LIQUID;
+
     public static void preInit(FMLPreInitializationEvent event)
     {
         config = new Configuration(event.getSuggestedConfigurationFile());
@@ -82,6 +84,8 @@ public class TombManyGravesConfigs {
         {
             GRAVE_SKULL_RENDER_TYPE = 3;
         }
+
+        ASCEND_LIQUID = config.get("Graves","ascendLiquid",false,"Setting this to true will have the grave try to place itself above bodies of liquid (water, lava, etc...). If a valid location is not found at the top, it will still attempt to place the grave near the actual location of death. (Defaults to false)").getBoolean();
 
         config.save();
     }

@@ -66,13 +66,20 @@ public class TombManyGravesCommonEvents {
         }
         if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer) event.getEntityLiving()).worldObj.isRemote)
         {
-            boolean gravePlaced = false;
             if (TombManyGravesConfigs.ENABLE_GRAVES) {
                 EntityPlayer player = (EntityPlayer) event.getEntityLiving();
 
                 if (!TileDeathBlock.isInventoryEmpty(player)) {
                     IBlockState state = ModBlocks.blockDeath.getDefaultState();
-                    BlockPos posToPlace = findValidLocation(player.worldObj, player.getPosition());
+                    BlockPos posToPlace = new BlockPos(0,-1,0);
+                    if (TombManyGravesConfigs.ASCEND_LIQUID)
+                    {
+                        posToPlace = findValidLocation(player.worldObj,ascendFromFluid(player.worldObj, player.getPosition()));
+                    }
+                    if (posToPlace.getY() == -1)
+                    {
+                        posToPlace = findValidLocation(player.worldObj, player.getPosition());
+                    }
                     DeathInventoryHandler.createDeathInventory(player, posToPlace);
                     if (posToPlace.getY() != -1) {
                         ChatHelper.sayMessage(player.worldObj, player, "Place of death (x,y,z) = (" + posToPlace.getX() + "," + posToPlace.getY() + "," + posToPlace.getZ() + ")");
@@ -89,7 +96,6 @@ public class TombManyGravesCommonEvents {
                                 state1 = Blocks.DIRT.getDefaultState();
                             }
                             ((TileDeathBlock) tileEntity).setCamoState(state1);
-                            gravePlaced = true;
                         } else {
                             LogHelper.info("Error! Death block tile not found!");
                         }
@@ -120,7 +126,7 @@ public class TombManyGravesCommonEvents {
         }
         for (int r=0;r<=MAX_RADIUS;r++)
         {
-            toReturn = checkLevel(world,toCheck,r);
+            toReturn = checkLevel(world,toCheck,r,false);
             if (toReturn.getY()!=-1)
             {
                 return toReturn;
@@ -129,9 +135,23 @@ public class TombManyGravesCommonEvents {
         return toReturn;
     }
 
-    private BlockPos checkLevel(World world, BlockPos pos, int radius)
+    private BlockPos ascendFromFluid(World world, BlockPos pos)
     {
-        if (radius==0 && isValidLocation(world,pos))
+        BlockPos toCheck = pos.add(0,0,0);
+        int height = 0;
+        while (pos.getY()+height < world.getActualHeight()-TombManyGravesConfigs.GRAVE_RANGE && !isValidLocation(world,toCheck,true))
+        {
+            int temp = pos.getY()+height;
+            int temp2 = world.getActualHeight();
+            toCheck = checkLevel(world,pos.add(0,height,0),1,true);
+            height += 1;
+        }
+        return toCheck;
+    }
+
+    private BlockPos checkLevel(World world, BlockPos pos, int radius, boolean ignoreFluidConfigs)
+    {
+        if (radius==0 && isValidLocation(world,pos,ignoreFluidConfigs))
         {
             return pos;
         }
@@ -143,7 +163,7 @@ public class TombManyGravesCommonEvents {
                 {
                     if (MathHelper.abs_int(i)==radius || MathHelper.abs_int(j)==radius || MathHelper.abs_int(k)==radius)
                     {
-                        if (isValidLocation(world,pos.add(i,j,k)))
+                        if (isValidLocation(world,pos.add(i,j,k),ignoreFluidConfigs))
                         {
                             return pos.add(i,j,k);
                         }
@@ -154,28 +174,30 @@ public class TombManyGravesCommonEvents {
         return new BlockPos(-1,-1,-1);
     }
 
-    private boolean isValidLocation(World world,BlockPos pos)
+    private boolean isValidLocation(World world,BlockPos pos,boolean ignoreFluidConfigs)
     {
+        if (pos.getY() < 0 || pos.getY() >= world.getActualHeight())
+        {
+            return false;
+        }
         Block theBlock = world.getBlockState(pos).getBlock();
         if (world.isAirBlock(pos))
         {
             return true;
         }
-        if (TombManyGravesConfigs.ALLOW_GRAVES_IN_LAVA && theBlock == Blocks.LAVA)
-        {
-            return true;
-        }
-        if (TombManyGravesConfigs.ALLOW_GRAVES_IN_FLOWING_LAVA && theBlock == Blocks.FLOWING_LAVA)
-        {
-            return true;
-        }
-        if (TombManyGravesConfigs.ALLOW_GRAVES_IN_WATER && theBlock == Blocks.WATER)
-        {
-            return true;
-        }
-        if (TombManyGravesConfigs.ALLOW_GRAVES_IN_FLOWING_WATER && theBlock == Blocks.FLOWING_WATER)
-        {
-            return true;
+        if (!ignoreFluidConfigs) {
+            if (TombManyGravesConfigs.ALLOW_GRAVES_IN_LAVA && theBlock == Blocks.LAVA) {
+                return true;
+            }
+            if (TombManyGravesConfigs.ALLOW_GRAVES_IN_FLOWING_LAVA && theBlock == Blocks.FLOWING_LAVA) {
+                return true;
+            }
+            if (TombManyGravesConfigs.ALLOW_GRAVES_IN_WATER && theBlock == Blocks.WATER) {
+                return true;
+            }
+            if (TombManyGravesConfigs.ALLOW_GRAVES_IN_FLOWING_WATER && theBlock == Blocks.FLOWING_WATER) {
+                return true;
+            }
         }
         if (TombManyGravesConfigs.ALLOW_GRAVES_ON_PLANTS && theBlock instanceof IPlantable)
         {
