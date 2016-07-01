@@ -6,7 +6,6 @@ import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.items.ModItems;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
-import com.sun.istack.internal.Nullable;
 import lain.mods.cos.CosmeticArmorReworked;
 import lain.mods.cos.inventory.InventoryCosArmor;
 import net.minecraft.entity.item.EntityItem;
@@ -21,7 +20,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Files;
@@ -35,7 +33,7 @@ public class DeathInventory {
 
     private NBTTagCompound allNBT;
 
-    public DeathInventory(EntityPlayer player, @Nullable BlockPos pos) {
+    public DeathInventory(EntityPlayer player, BlockPos pos) {
         allNBT = new NBTTagCompound();
 
         NBTTagList tagList = new NBTTagList();
