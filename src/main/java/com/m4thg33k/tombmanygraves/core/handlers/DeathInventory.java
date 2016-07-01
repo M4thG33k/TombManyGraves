@@ -86,7 +86,7 @@ public class DeathInventory {
         return didWork;
     }
 
-    public boolean writeFile(EntityPlayer player)
+    public String writeFile(EntityPlayer player)
     {
         boolean didWork;
 
@@ -112,11 +112,13 @@ public class DeathInventory {
             {
                 e.printStackTrace();
             }
+
+            return timeStamp;
         }
 //        didWork = writePortion(TombManyGraves.file + DeathInventoryHandler.FILE_PREFIX + filename + "_inventory_" + filePostfix,mainNBT.toString());
 //        didWork = didWork && writePortion(TombManyGraves.file + DeathInventoryHandler.FILE_PREFIX + filename + "_baubles_" + filePostfix,baublesNBT.toString());
 
-        return didWork;
+        return null;
     }
 
     public static void clearLatest(EntityPlayer player)
@@ -129,7 +131,7 @@ public class DeathInventory {
         writePortion(fullFileName, "{}");
     }
 
-    public boolean dropAll(EntityPlayer player, String timestamp)
+    public boolean dropAll(EntityPlayer player, BlockPos position, String timestamp)
     {
         boolean didWork = true;
 
@@ -144,20 +146,20 @@ public class DeathInventory {
             allNBT = JsonToNBT.getTagFromJson(fileData);
             InventoryPlayer inventoryPlayer = new InventoryPlayer(player);
             inventoryPlayer.readFromNBT(allNBT.getTagList("Main",10));
-            InventoryHelper.dropInventoryItems(player.worldObj, player.getPosition(), inventoryPlayer);
+            InventoryHelper.dropInventoryItems(player.worldObj, position, inventoryPlayer);
 
             if (TombManyGraves.isBaublesInstalled)
             {
                 InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
                 inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
-                InventoryHelper.dropInventoryItems(player.worldObj, player.getPosition(), inventoryBaubles);
+                InventoryHelper.dropInventoryItems(player.worldObj, position, inventoryBaubles);
             }
 
             if (TombManyGraves.isCosmeticArmorInstalled)
             {
                 InventoryCosArmor cosArmor = new InventoryCosArmor();
                 cosArmor.readFromNBT(allNBT.getCompoundTag("Cosmetic"));
-                InventoryHelper.dropInventoryItems(player.worldObj, player.getPosition(), cosArmor);
+                InventoryHelper.dropInventoryItems(player.worldObj, position, cosArmor);
             }
             reader.close();
         }

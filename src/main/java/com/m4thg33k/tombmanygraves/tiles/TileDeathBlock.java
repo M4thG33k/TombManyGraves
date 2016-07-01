@@ -55,6 +55,7 @@ public class TileDeathBlock extends TileEntity {
     private IBlockState camoState;
 
     private boolean GIVE_PRIORITY_TO_GRAVE = TombManyGravesConfigs.GIVE_PRIORITY_TO_GRAVE_ITEMS;
+    private String timestamp = "";
 
     public TileDeathBlock()
     {
@@ -180,6 +181,11 @@ public class TileDeathBlock extends TileEntity {
 
         cosmeticNBT = compound.getCompoundTag("CosmeticNBT");
 
+        if (compound.hasKey("Timestamp"))
+        {
+            this.timestamp = compound.getString("Timestamp");
+        }
+
         setRenderGround();
     }
 
@@ -209,6 +215,8 @@ public class TileDeathBlock extends TileEntity {
         }
 
         compound.setTag("CosmeticNBT",cosmeticNBT);
+
+        compound.setString("Timestamp", timestamp);
 
         return compound;
     }
@@ -583,5 +591,23 @@ public class TileDeathBlock extends TileEntity {
     public boolean areGraveItemsForced()
     {
         return GIVE_PRIORITY_TO_GRAVE;
+    }
+
+    public void setTimeStamp(String stamp)
+    {
+        this.timestamp = stamp;
+        markDirty();
+    }
+
+    public String getTimestamp()
+    {
+        return this.timestamp;
+    }
+
+    public void clearInventory()
+    {
+        savedPlayerInventory.clear();;
+        baublesNBT = new NBTTagCompound();
+        cosmeticNBT = new NBTTagCompound();
     }
 }

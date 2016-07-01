@@ -80,7 +80,7 @@ public class TombManyGravesCommonEvents {
                     {
                         posToPlace = findValidLocation(player.worldObj, player.getPosition());
                     }
-                    DeathInventoryHandler.createDeathInventory(player, posToPlace);
+                    String timestamp = DeathInventoryHandler.createDeathInventory(player, posToPlace);
                     if (posToPlace.getY() != -1) {
                         ChatHelper.sayMessage(player.worldObj, player, "Place of death (x,y,z) = (" + posToPlace.getX() + "," + posToPlace.getY() + "," + posToPlace.getZ() + ")");
                         player.worldObj.setBlockState(posToPlace, state);
@@ -96,6 +96,7 @@ public class TombManyGravesCommonEvents {
                                 state1 = Blocks.DIRT.getDefaultState();
                             }
                             ((TileDeathBlock) tileEntity).setCamoState(state1);
+                            ((TileDeathBlock) tileEntity).setTimeStamp(timestamp);
                         } else {
                             LogHelper.info("Error! Death block tile not found!");
                         }

@@ -36,13 +36,13 @@ public class DeathInventoryHandler {
         }
     }
 
-    public static boolean createDeathInventory(EntityPlayer player, BlockPos gravePos)
+    public static String createDeathInventory(EntityPlayer player, BlockPos gravePos)
     {
         checkFilePath();
 
         if (!TombManyGravesConfigs.ALLOW_INVENTORY_SAVES)
         {
-            return false;
+            return null;
         }
 
         DeathInventory deathInventory = new DeathInventory(player, gravePos);
@@ -54,10 +54,10 @@ public class DeathInventoryHandler {
         return deathInventory.restoreAll(player, timestamp);
     }
 
-    public static boolean dropPlayerInventory(EntityPlayer player, String timestamp)
+    public static boolean dropPlayerInventory(EntityPlayer player, BlockPos position, String timestamp)
     {
         DeathInventory deathInventory = new DeathInventory(player,null);
-        return deathInventory.dropAll(player, timestamp);
+        return deathInventory.dropAll(player, position, timestamp);
     }
 
     public static List<String> getFilenames(String playerName)

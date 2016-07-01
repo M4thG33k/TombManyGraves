@@ -62,7 +62,7 @@ public class CommandDropInventory implements ICommand {
         EntityPlayer player = server.getPlayerList().getPlayerByUsername(args[0]);
         if (player!=null)
         {
-            boolean worked = DeathInventoryHandler.dropPlayerInventory(player,args[1]);
+            boolean worked = DeathInventoryHandler.dropPlayerInventory(player, player.getPosition(), args[1]);
             if (!worked)
             {
                 sender.addChatMessage(new TextComponentString("Failed to drop inventory."));

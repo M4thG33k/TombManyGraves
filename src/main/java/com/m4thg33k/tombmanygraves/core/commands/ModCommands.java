@@ -13,5 +13,6 @@ public class ModCommands {
         event.registerServerCommand(new CommandRestoreInventory());
         event.registerServerCommand(new CommandDropInventory());
         event.registerServerCommand(new CommandGetDeathList());
+        event.registerServerCommand(new CommandLoot());
     }
 }

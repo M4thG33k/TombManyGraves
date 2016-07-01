@@ -69,7 +69,7 @@ public class TombManyGravesConfigs {
         ALLOW_LOCKING_MESSAGES = config.get("Graves","allowLockingMessages",false,"If set to true, this will send chat messages to a player when the lock/unlock a grave. (Defaults to false)").getBoolean();
         REQUIRE_SNEAKING = config.get("Graves","requireSneaking",true,"If set to true, players will be required to sneak to their grave to get their items back; otherwise any contact at all will allow retrieval. (Defaults to true)").getBoolean();
 
-        ALLOW_INVENTORY_SAVES = config.get("Inventory","allowInventorySaves",true,"If set to true, a file will be generated for each player death, allowing OPs to restore a player's inventory from the file. Note that these files are *per machine*, that means you could potentially restore inventories from other worlds in single-player (or servers if you don't delete the inventory data). (Defaults to true)").getBoolean();
+        ALLOW_INVENTORY_SAVES = config.get("Inventory","allowInventorySaves",true,"If set to true, a file will be generated for each player death, allowing OPs to restore a player's inventory from the file. Note that these files are *per machine*, that means you could potentially restore inventories from other worlds in single-player (or servers if you don't delete the inventory data). Setting this to false will disable any command that requires use of the backups to operate (restore, drop, and loot commands). (Defaults to true)").getBoolean();
 
         FORCE_DIRT_RENDER = config.get("Graves","forceDirtRender",false,"If true, all graves will render as either a floating head or with the dirt texture and will not adapt to the texture beneath it. (You can set this to true to fix specific client-side crashes.) (Defaults to false)").getBoolean();
 
