@@ -55,9 +55,10 @@ public class TombManyGravesCommonEvents {
 //        }
     }
 
-    @SubscribeEvent(priority = EventPriority.NORMAL)
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public void onPlayerDeath(LivingDeathEvent event)
     {
+        LogHelper.info("Debug line");
         if (TombManyGravesConfigs.PRINT_DEATH_LOG && event.getEntityLiving() instanceof EntityPlayer && !event.getEntityLiving().getEntityWorld().isRemote)
         {
             EntityPlayer player = (EntityPlayer)event.getEntityLiving();

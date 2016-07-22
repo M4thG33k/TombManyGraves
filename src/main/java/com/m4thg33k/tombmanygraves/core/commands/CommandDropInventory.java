@@ -88,7 +88,7 @@ public class CommandDropInventory implements ICommand {
 
     @Override
     public int compareTo(ICommand o) {
-        return 0;
+        return this.getCommandName().compareTo(o.getCommandName());
     }
 
     public int getRequiredPermissionLevel()
