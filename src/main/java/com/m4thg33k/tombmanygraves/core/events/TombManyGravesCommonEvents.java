@@ -58,7 +58,7 @@ public class TombManyGravesCommonEvents {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onPlayerDeath(LivingDeathEvent event)
     {
-        LogHelper.info("Debug line");
+//        LogHelper.info("Debug line");
         if (TombManyGravesConfigs.PRINT_DEATH_LOG && event.getEntityLiving() instanceof EntityPlayer && !event.getEntityLiving().getEntityWorld().isRemote)
         {
             EntityPlayer player = (EntityPlayer)event.getEntityLiving();
@@ -124,7 +124,7 @@ public class TombManyGravesCommonEvents {
         if (toCheck.getY()<=0)
         {
             toCheck = toCheck.add(0, MathHelper.abs_int(toCheck.getY())+(VOID_SEARCH_1 ? 1 : MAX_RADIUS),0);
-            LogHelper.info(toCheck.toString());
+//            LogHelper.info(toCheck.toString());
         }
         for (int r=0;r<=MAX_RADIUS;r++)
         {

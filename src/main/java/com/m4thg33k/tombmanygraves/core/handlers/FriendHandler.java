@@ -29,7 +29,7 @@ public class FriendHandler {
     {
         BufferedReader reader = null;
         try{
-            LogHelper.info(TombManyGraves.file + FILE_PREFIX + FILENAME);
+//            LogHelper.info(TombManyGraves.file + FILE_PREFIX + FILENAME);
             checkFilePath();
             reader = new BufferedReader(new FileReader(TombManyGraves.file + FILE_PREFIX + FILENAME));
             Gson gson = new GsonBuilder().create();
