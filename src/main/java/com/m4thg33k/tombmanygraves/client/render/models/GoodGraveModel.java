@@ -176,14 +176,15 @@ public class GoodGraveModel implements IBakedModel {
         }
 
         @Override
-        public Biome getBiomeGenForCoords(BlockPos pos) {
-            return compose.getBiomeGenForCoords(pos);
+        public Biome getBiome(BlockPos pos) {
+            return compose.getBiome(pos);
         }
 
-        @Override
-        public boolean extendedLevelsInChunkCache() {
-            return compose.extendedLevelsInChunkCache();
-        }
+
+//        @Override
+//        public boolean extendedLevelsInChunkCache() {
+//            return compose.extendedLevelsInChunkCache();
+//        }
 
         @Override
         public int getStrongPower(BlockPos pos, EnumFacing direction) {
