@@ -6,11 +6,9 @@ import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.blocks.BlockDeath;
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
-import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import lain.mods.cos.CosmeticArmorReworked;
 import lain.mods.cos.inventory.InventoryCosArmor;
-import lellson.expandablebackpack.inventory.iinventory.BackpackInventory;
 import lellson.expandablebackpack.inventory.iinventory.BackpackSlotInventory;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -31,7 +29,6 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -178,6 +175,7 @@ public class TileDeathBlock extends TileEntity {
         this.setSkull();
         savedPlayerInventory.readFromNBT(compound.getTagList("Inventory",10));
         baublesNBT = compound.getCompoundTag("BaublesNBT");
+        expandableBackpackNBT = compound.getCompoundTag("ExpandableBackpackNBT");
         angle = compound.getInteger("AngleOfDeath");
 
         locked = compound.getBoolean("IsLocked");
@@ -214,6 +212,7 @@ public class TileDeathBlock extends TileEntity {
         compound.setTag("Inventory",tagList);
 
         compound.setTag("BaublesNBT",baublesNBT);
+        compound.setTag("ExpandableBackpackNBT",expandableBackpackNBT);
         compound.setInteger("AngleOfDeath",angle);
 
         compound.setBoolean("IsLocked", locked);
@@ -285,6 +284,18 @@ public class TileDeathBlock extends TileEntity {
                     replaceCosmeticInventory(player);
                 }
             }
+
+            if (TombManyGraves.isExpandableBackpacksInstalled)
+            {
+                if (GIVE_PRIORITY_TO_GRAVE)
+                {
+                    swapExpandableBackpack(player);
+                }
+                else
+                {
+                    replaceExpandableBackpack(player);
+                }
+            }
         }
         worldObj.setBlockToAir(pos);
     }
@@ -324,6 +335,18 @@ public class TileDeathBlock extends TileEntity {
         cosmeticNBT = playerC;
         replaceCosmeticInventory(player);
         cosmeticNBT = new NBTTagCompound();
+    }
+
+    public void swapExpandableBackpack(EntityPlayer player)
+    {
+        IInventory backpackInventory = new BackpackSlotInventory(player);
+        if (backpackInventory.getStackInSlot(0) != null)
+        {
+            InventoryHelper.dropInventoryItems(player.worldObj,player.getPosition(),backpackInventory);
+        }
+        ItemStack savedBackpack = ItemStack.loadItemStackFromNBT(expandableBackpackNBT);
+        backpackInventory.setInventorySlotContents(0, savedBackpack);
+        
     }
 
     public void replaceSpecificInventory(EntityPlayer player, IInventory playerInventory, IInventory savedInventory)
@@ -372,6 +395,21 @@ public class TileDeathBlock extends TileEntity {
         replaceSpecificInventory(player,currentCos,savedCos);
 
         cosmeticNBT = new NBTTagCompound();
+    }
+
+    public void replaceExpandableBackpack(EntityPlayer player)
+    {
+        IInventory backpackInventory = new BackpackSlotInventory(player);
+        ItemStack savedBackpack = ItemStack.loadItemStackFromNBT(expandableBackpackNBT);
+        if (backpackInventory.getStackInSlot(0) == null)
+        {
+            backpackInventory.setInventorySlotContents(0, savedBackpack);
+        }
+        else
+        {
+            EntityItem entityItem = new EntityItem(player.worldObj, player.posX, player.posY, player.posZ, savedBackpack);
+            player.worldObj.spawnEntityInWorld(entityItem);
+        }
     }
 
     @Override
@@ -548,7 +586,7 @@ public class TileDeathBlock extends TileEntity {
             Map<Enchantment, Integer> enchantMap = EnchantmentHelper.getEnchantments(stack);
             for (Enchantment enchantment : enchantMap.keySet())
             {
-                LogHelper.info(enchantment.getName());
+                //LogHelper.info(enchantment.getName());
                 if (enchantment.getName().equals("enchantment.soulBound"))
                 {
                     return enchantMap.get(enchantment) > 0;

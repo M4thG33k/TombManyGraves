@@ -37,7 +37,7 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 minecraft {
-    version = "1.10.2-12.18.1.2079"
+    version = "1.10.2-12.18.1.2093"
     runDir = "run"
 
 
@@ -82,7 +82,7 @@ dependencies {
 
 
     //for JEI stuff
-    deobfCompile "mezz.jei:jei_1.10.2:3.9.3.252"
+    deobfCompile "mezz.jei:jei_1.10.2:3.10.0.262"
     //end for JEI stuff
 }
 

@@ -36,20 +36,20 @@ public class TombManyGravesCommonEvents {
     }
 
 
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    public void savePlayerInventoryOnDeath(LivingDeathEvent event)
-    {
-//        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer)event.getEntityLiving()).worldObj.isRemote)
-//        {
-//            if (TileDeathBlock.isInventoryEmpty((EntityPlayer)event.getEntityLiving())){
-//                DeathInventory.clearLatest((EntityPlayer)event.getEntityLiving());
-//            }
-//            else
-//            {
-//                DeathInventoryHandler.createDeathInventory((EntityPlayer)event.getEntityLiving());
-//            }
-//        }
-    }
+//    @SubscribeEvent(priority = EventPriority.HIGH)
+//    public void savePlayerInventoryOnDeath(LivingDeathEvent event)
+//    {
+////        if (!event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && event.getEntityLiving() instanceof EntityPlayer && !((EntityPlayer)event.getEntityLiving()).worldObj.isRemote)
+////        {
+////            if (TileDeathBlock.isInventoryEmpty((EntityPlayer)event.getEntityLiving())){
+////                DeathInventory.clearLatest((EntityPlayer)event.getEntityLiving());
+////            }
+////            else
+////            {
+////                DeathInventoryHandler.createDeathInventory((EntityPlayer)event.getEntityLiving());
+////            }
+////        }
+//    }
 
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void onPlayerDeath(LivingDeathEvent event)
@@ -218,14 +218,14 @@ public class TombManyGravesCommonEvents {
         }
     }
 
-//    @SubscribeEvent(priority = EventPriority.HIGHEST)
-//    public void onPlayerClone(PlayerEvent.Clone event)
-//    {
-//        if (!event.isCanceled() && !event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && TombManyGravesConfigs.ALLOW_INVENTORY_SAVES && !(event.getEntityLiving().worldObj.isRemote) && event.isWasDeath())
-//        {
-//            DeathInventoryHandler.getDeathList(event.getEntityPlayer(), event.getEntityPlayer().getName(), "latest");
-//        }
-//    }
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void onPlayerClone(PlayerEvent.Clone event)
+    {
+        if (!event.isCanceled() && !event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && TombManyGravesConfigs.ALLOW_INVENTORY_SAVES && !(event.getEntityLiving().worldObj.isRemote) && event.isWasDeath())
+        {
+            DeathInventoryHandler.getDeathList(event.getEntityPlayer(), event.getEntityPlayer().getName(), "latest");
+        }
+    }
 
 //    @SubscribeEvent
 //    public void onPlayerRespawn(net.minecraftforge.event.entity.player.PlayerEvent.Clone event)
