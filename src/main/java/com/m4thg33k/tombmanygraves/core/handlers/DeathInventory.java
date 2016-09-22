@@ -8,6 +8,7 @@ import com.m4thg33k.tombmanygraves.items.ModItems;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import lain.mods.cos.CosmeticArmorReworked;
 import lain.mods.cos.inventory.InventoryCosArmor;
+import lellson.expandablebackpack.inventory.iinventory.BackpackSlotInventory;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -57,6 +58,20 @@ public class DeathInventory {
             CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID()).writeToNBT(cosmeticNBT);
         }
         allNBT.setTag("Cosmetic", cosmeticNBT);
+
+        NBTTagCompound expandableBackpackNBT = new NBTTagCompound();
+        if (TombManyGraves.isExpandableBackpacksInstalled)
+        {
+            expandableBackpackNBT = TileDeathBlock.getExpandableBackpackNBTSansSoulbound(player, false);
+        }
+        allNBT.setTag("ExpandableBackpack",expandableBackpackNBT);
+
+        NBTTagCompound eydamosBackpackNBT = new NBTTagCompound();
+        if (TombManyGraves.isEydamosBackpacksInstalled)
+        {
+            eydamosBackpackNBT = TileDeathBlock.getEydamosBackpackNBTSansSoulbound(player, false);
+        }
+        allNBT.setTag("EydamosBackpack", eydamosBackpackNBT);
 
         NBTTagCompound miscNBT = new NBTTagCompound();
         boolean flag = pos == null;
@@ -159,6 +174,23 @@ public class DeathInventory {
                 cosArmor.readFromNBT(allNBT.getCompoundTag("Cosmetic"));
                 InventoryHelper.dropInventoryItems(player.worldObj, position, cosArmor);
             }
+
+            if (TombManyGraves.isExpandableBackpacksInstalled)
+            {
+                ItemStack stack = ItemStack.loadItemStackFromNBT(allNBT.getCompoundTag("ExpandableBackpack"));
+                if (stack!=null && stack.stackSize > 0)
+                {
+                    player.worldObj.spawnEntityInWorld(new EntityItem(player.worldObj, position.getX(), position.getY(), position.getZ(), stack));
+                }
+            }
+            if (TombManyGraves.isEydamosBackpacksInstalled)
+            {
+                ItemStack stack = ItemStack.loadItemStackFromNBT(allNBT.getCompoundTag("EydamosBackpack"));
+                if (stack!=null && stack.stackSize > 0)
+                {
+                    player.worldObj.spawnEntityInWorld(new EntityItem(player.worldObj, position.getX(), position.getY(), position.getZ(), stack));
+                }
+            }
             reader.close();
         }
         catch (Exception e)
@@ -202,7 +234,22 @@ public class DeathInventory {
                     ((IInventory)playerCos).setInventorySlotContents(i, ((IInventory)cosArmor).getStackInSlot(i));
                 }
             }
-
+            if (TombManyGraves.isExpandableBackpacksInstalled)
+            {
+                ItemStack stack = ItemStack.loadItemStackFromNBT(allNBT.getCompoundTag("ExpandableBackpack"));
+                if (stack!=null && stack.stackSize > 0)
+                {
+                    player.worldObj.spawnEntityInWorld(new EntityItem(player.worldObj, player.posX, player.posY, player.posZ, stack));
+                }
+            }
+            if (TombManyGraves.isEydamosBackpacksInstalled)
+            {
+                ItemStack stack = ItemStack.loadItemStackFromNBT(allNBT.getCompoundTag("EydamosBackpack"));
+                if (stack!=null && stack.stackSize > 0)
+                {
+                    player.worldObj.spawnEntityInWorld(new EntityItem(player.worldObj, player.posX, player.posY, player.posZ, stack));
+                }
+            }
 
             reader.close();
         }

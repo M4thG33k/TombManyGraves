@@ -7,6 +7,7 @@ import com.m4thg33k.tombmanygraves.blocks.BlockDeath;
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
+import de.eydamos.backpack.data.PlayerSave;
 import lain.mods.cos.CosmeticArmorReworked;
 import lain.mods.cos.inventory.InventoryCosArmor;
 import lellson.expandablebackpack.inventory.iinventory.BackpackSlotInventory;
@@ -20,6 +21,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -44,6 +46,7 @@ public class TileDeathBlock extends TileEntity {
     private NBTTagCompound baublesNBT = new NBTTagCompound();
     private NBTTagCompound cosmeticNBT = new NBTTagCompound();
     private NBTTagCompound expandableBackpackNBT = new NBTTagCompound();
+    private NBTTagCompound eydamosBackpackNBT = new NBTTagCompound();
     private boolean locked = false;
 
     private UUID playerID = null;
@@ -102,6 +105,11 @@ public class TileDeathBlock extends TileEntity {
             setExpandableBackpackInventory(player);
         }
 
+        if (TombManyGraves.isEydamosBackpacksInstalled)
+        {
+            setEydamosBackpackInventory(player);
+        }
+
         this.markDirty();
         worldObj.markAndNotifyBlock(pos, null, worldObj.getBlockState(pos), worldObj.getBlockState(pos), 1);
     }
@@ -123,6 +131,11 @@ public class TileDeathBlock extends TileEntity {
 
     public void setExpandableBackpackInventory(EntityPlayer player){
         this.expandableBackpackNBT = getExpandableBackpackNBTSansSoulbound(player, true);
+    }
+
+    public void setEydamosBackpackInventory(EntityPlayer player)
+    {
+        this.eydamosBackpackNBT = getEydamosBackpackNBTSansSoulbound(player,true);
     }
 
     public static boolean isValidForGrave(ItemStack stack)
@@ -176,6 +189,7 @@ public class TileDeathBlock extends TileEntity {
         savedPlayerInventory.readFromNBT(compound.getTagList("Inventory",10));
         baublesNBT = compound.getCompoundTag("BaublesNBT");
         expandableBackpackNBT = compound.getCompoundTag("ExpandableBackpackNBT");
+        eydamosBackpackNBT = compound.getCompoundTag("EydamosBackpackNBT");
         angle = compound.getInteger("AngleOfDeath");
 
         locked = compound.getBoolean("IsLocked");
@@ -213,6 +227,7 @@ public class TileDeathBlock extends TileEntity {
 
         compound.setTag("BaublesNBT",baublesNBT);
         compound.setTag("ExpandableBackpackNBT",expandableBackpackNBT);
+        compound.setTag("EydamosBackpackNBT",eydamosBackpackNBT);
         compound.setInteger("AngleOfDeath",angle);
 
         compound.setBoolean("IsLocked", locked);
@@ -296,6 +311,18 @@ public class TileDeathBlock extends TileEntity {
                     replaceExpandableBackpack(player);
                 }
             }
+
+            if (TombManyGraves.isEydamosBackpacksInstalled)
+            {
+                if (GIVE_PRIORITY_TO_GRAVE)
+                {
+                    swapEydamosBackpack(player);
+                }
+                else
+                {
+                    replaceEydamosBackpack(player);
+                }
+            }
         }
         worldObj.setBlockToAir(pos);
     }
@@ -346,7 +373,37 @@ public class TileDeathBlock extends TileEntity {
         }
         ItemStack savedBackpack = ItemStack.loadItemStackFromNBT(expandableBackpackNBT);
         backpackInventory.setInventorySlotContents(0, savedBackpack);
-        
+
+        expandableBackpackNBT = new NBTTagCompound();
+    }
+
+    public void swapEydamosBackpack(EntityPlayer player)
+    {
+//        PlayerSave playerSave = PlayerSave.loadPlayer(player.worldObj, player);
+//        NBTTagCompound current =  new NBTTagCompound();
+//        playerSave.writeToNBT(current);
+//        ((IInventory)playerSave).clear();
+//        PlayerSave saved = new PlayerSave(null);
+//        saved.readFromNBT(eydamosBackpackNBT);
+//        replaceSpecificInventory(player, playerSave, saved);
+//        ((IInventory)saved).clear();
+//        saved.readFromNBT(current);
+//        replaceSpecificInventory(player, playerSave, saved);
+//        eydamosBackpackNBT = new NBTTagCompound();
+        ItemStack savedBackpack = ItemStack.loadItemStackFromNBT(eydamosBackpackNBT);
+        if (savedBackpack == null || savedBackpack.stackSize == 0)
+        {
+            return;
+        }
+        PlayerSave playerSave = PlayerSave.loadPlayer(player.worldObj, player);
+        ItemStack currentBackpack = playerSave.getBackpack();
+        if (currentBackpack != null)
+        {
+            EntityItem entityItem = new EntityItem(player.worldObj, player.posX, player.posY, player.posZ, currentBackpack);
+            player.worldObj.spawnEntityInWorld(entityItem);
+        }
+        ((IInventory) playerSave).setInventorySlotContents(0, savedBackpack);
+        eydamosBackpackNBT = new NBTTagCompound();
     }
 
     public void replaceSpecificInventory(EntityPlayer player, IInventory playerInventory, IInventory savedInventory)
@@ -401,6 +458,10 @@ public class TileDeathBlock extends TileEntity {
     {
         IInventory backpackInventory = new BackpackSlotInventory(player);
         ItemStack savedBackpack = ItemStack.loadItemStackFromNBT(expandableBackpackNBT);
+        if (savedBackpack.stackSize == 0)
+        {
+            return;
+        }
         if (backpackInventory.getStackInSlot(0) == null)
         {
             backpackInventory.setInventorySlotContents(0, savedBackpack);
@@ -410,6 +471,36 @@ public class TileDeathBlock extends TileEntity {
             EntityItem entityItem = new EntityItem(player.worldObj, player.posX, player.posY, player.posZ, savedBackpack);
             player.worldObj.spawnEntityInWorld(entityItem);
         }
+
+        expandableBackpackNBT = new NBTTagCompound();
+    }
+
+    public void replaceEydamosBackpack(EntityPlayer player)
+    {
+//        PlayerSave current = PlayerSave.loadPlayer(player.worldObj, player);
+//        PlayerSave saved = new PlayerSave(null);
+//        saved.readFromNBT(eydamosBackpackNBT);
+//        replaceSpecificInventory(player, current, saved);
+//        eydamosBackpackNBT = new NBTTagCompound();
+        PlayerSave playerSave = PlayerSave.loadPlayer(player.worldObj,player);
+        ItemStack savedBackpack = ItemStack.loadItemStackFromNBT(eydamosBackpackNBT);
+        if (savedBackpack == null || savedBackpack.stackSize == 0)
+        {
+            return;
+        }
+
+        ItemStack currentBackpack = playerSave.getBackpack();
+        if (currentBackpack != null)
+        {
+            EntityItem entityItem = new EntityItem(player.worldObj, player.posX, player.posY, player.posZ, savedBackpack);
+            player.worldObj.spawnEntityInWorld(entityItem);
+        }
+        else
+        {
+            ((IInventory)playerSave).setInventorySlotContents(0, savedBackpack);
+        }
+
+        eydamosBackpackNBT = new NBTTagCompound();
     }
 
     @Override
@@ -467,6 +558,28 @@ public class TileDeathBlock extends TileEntity {
             cosArmor.readFromNBT(cosmeticNBT);
             InventoryHelper.dropInventoryItems(worldObj, pos, cosArmor);
         }
+        if (TombManyGraves.isExpandableBackpacksInstalled)
+        {
+            ItemStack itemStack = ItemStack.loadItemStackFromNBT(expandableBackpackNBT);
+            if (itemStack != null && itemStack.stackSize > 0)
+            {
+                worldObj.spawnEntityInWorld(new EntityItem(worldObj, pos.getX(), pos.getY(), pos.getZ(), itemStack));
+            }
+//            BackpackSlotInventory backpack = new BackpackSlotInventory(null);
+//            backpack.readFromNBT(expandableBackpackNBT);
+//            InventoryHelper.dropInventoryItems(worldObj, pos, backpack);
+        }
+        if (TombManyGraves.isEydamosBackpacksInstalled)
+        {
+            ItemStack itemStack = ItemStack.loadItemStackFromNBT(eydamosBackpackNBT);
+            if (itemStack != null && itemStack.stackSize > 0)
+            {
+                worldObj.spawnEntityInWorld(new EntityItem(worldObj, pos.getX(), pos.getY(), pos.getZ(), itemStack));
+            }
+//            PlayerSave playerSave = new PlayerSave(null);
+//            playerSave.readFromNBT(eydamosBackpackNBT);
+//            InventoryHelper.dropInventoryItems(worldObj, pos, playerSave);
+        }
     }
 
     public static boolean isInventoryEmpty(EntityPlayer player)
@@ -481,6 +594,17 @@ public class TileDeathBlock extends TileEntity {
         if (TombManyGraves.isCosmeticArmorInstalled)
         {
             toReturn = toReturn && isSpecificInventoryEmpty(CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID()));
+        }
+
+        if (TombManyGraves.isExpandableBackpacksInstalled)
+        {
+            IInventory backpack = new BackpackSlotInventory(player);
+            toReturn = toReturn && isSpecificInventoryEmpty(backpack);
+        }
+
+        if (TombManyGraves.isEydamosBackpacksInstalled)
+        {
+            toReturn = toReturn && isSpecificInventoryEmpty(PlayerSave.loadPlayer(player.worldObj,player));
         }
 
         return toReturn;
@@ -647,12 +771,38 @@ public class TileDeathBlock extends TileEntity {
 
         ItemStack itemStack = inventory.getStackInSlot(0);
 
-        if (itemStack != null && !hasSoulboundEnchantment(itemStack))
+        if (isValidForGrave(itemStack))
         {
             itemStack.writeToNBT(compound);
             if (clearOriginal)
             {
                 inventory.setInventorySlotContents(0,null);
+            }
+        }
+
+        return compound;
+    }
+
+    public static NBTTagCompound getEydamosBackpackNBTSansSoulbound(EntityPlayer player, boolean clearOriginal)
+    {
+//        PlayerSave playerSave = new PlayerSave();
+//        PlayerSave current = PlayerSave.loadPlayer(player.worldObj, player);
+//
+//        copyInventoryWithoutSoulbound(current, playerSave, clearOriginal);
+//        NBTTagCompound compound = new NBTTagCompound();
+//        playerSave.func_76184_a(compound);
+//        return compound;
+
+        PlayerSave playerSave = PlayerSave.loadPlayer(player.worldObj, player);
+        ItemStack backpack = playerSave.getBackpack();
+
+        NBTTagCompound compound = new NBTTagCompound();
+        if (isValidForGrave(backpack))
+        {
+            backpack.writeToNBT(compound);
+            if (clearOriginal)
+            {
+                ((IInventory)playerSave).setInventorySlotContents(0, null);
             }
         }
 

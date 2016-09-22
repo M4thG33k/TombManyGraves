@@ -25,6 +25,7 @@ public class TombManyGraves {
     public static boolean isEnderIOInstalled = false;
     public static boolean isCosmeticArmorInstalled = false;
     public static boolean isExpandableBackpacksInstalled = false;
+    public static boolean isEydamosBackpacksInstalled = false;
 
     public static Random rand = new Random(System.currentTimeMillis());
 
@@ -56,10 +57,12 @@ public class TombManyGraves {
         isEnderIOInstalled = Loader.isModLoaded("EnderIO");
         isCosmeticArmorInstalled = Loader.isModLoaded("cosmeticarmorreworked");
         isExpandableBackpacksInstalled = Loader.isModLoaded("expandablebackpack");
+        isEydamosBackpacksInstalled = Loader.isModLoaded("backpack");
         LogHelper.info("Baubles is" + (isBaublesInstalled ? "" : " NOT") + " installed.");
         LogHelper.info("EnderIO is" + (isEnderIOInstalled ? "" : " NOT") + " installed.");
         LogHelper.info("Cosmetic Armor is" + (isCosmeticArmorInstalled ? "" : "NOT") + " installed.");
         LogHelper.info("Expandable Backpacks is " + (isExpandableBackpacksInstalled ? "" : "NOT " ) + "installed.");
+        LogHelper.info("Eydamos's Backpacks is " + (isExpandableBackpacksInstalled ? "" : "NOT " ) + "installed.");
     }
 
     @Mod.EventHandler
