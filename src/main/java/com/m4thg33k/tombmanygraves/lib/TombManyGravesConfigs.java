@@ -3,6 +3,10 @@ package com.m4thg33k.tombmanygraves.lib;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
 public class TombManyGravesConfigs {
 
     public static Configuration config;
@@ -35,6 +39,15 @@ public class TombManyGravesConfigs {
     public static int GRAVE_SKULL_RENDER_TYPE;
 
     public static boolean ASCEND_LIQUID;
+
+    public static boolean ALLOW_MAIN_INVENTORY;
+    public static boolean ALLOW_BAUBLES;
+    public static boolean ALLOW_COSMETIC_ARMOR;
+    public static boolean ALLOW_EXPANDABLE_BACKPACKS;
+    public static boolean ALLOW_EYDAMOS_BACKPACKS;
+    public static boolean ALLOW_THUT_WEARABLES;
+
+    public static ArrayList<Integer> BLACKLISTED_PLAYER_INVENTORY = new ArrayList<>();
 
     public static void preInit(FMLPreInitializationEvent event)
     {
@@ -86,6 +99,22 @@ public class TombManyGravesConfigs {
         }
 
         ASCEND_LIQUID = config.get("Graves","ascendLiquid",false,"Setting this to true will have the grave try to place itself above bodies of liquid (water, lava, etc...). If a valid location is not found at the top, it will still attempt to place the grave near the actual location of death. (Defaults to false)").getBoolean();
+
+
+        ALLOW_MAIN_INVENTORY = config.get("compatibility", "allowPlayerInventory", true, "If set to false, the grave will not grab any of the player's vanilla inventory. (Defaults to true)").getBoolean();
+        ALLOW_BAUBLES = config.get("compatibility", "allowBaubles", true, "If set to false, the grave will not grab any of the player's Bauble inventory. (Defaults to true)").getBoolean();
+        ALLOW_EXPANDABLE_BACKPACKS = config.get("compatibility", "allowExpandableBackpacks", true, "If set to false, the grave will not grab any of the player's expandable backpack inventory. (Defaults to true)").getBoolean();
+        ALLOW_EYDAMOS_BACKPACKS = config.get("compatibility", "allowEydamosBackpacks", true, "If set to false, the grave will not grab any of the player's Eydamos backpack inventory. (Defaults to true)").getBoolean();
+        ALLOW_THUT_WEARABLES = config.get("compatibility", "allowThutWearables", true, "If set to false, the grave will not grab any of the player's Thut's Wearables inventory. (Defaults to true)").getBoolean();
+        ALLOW_COSMETIC_ARMOR = config.get("compatibility", "allowCosmeticArmor", true, "If set to false, the grave will not grab any of the player's Cosmetic Armor inventory. (Defaults to true)").getBoolean();
+
+        int[] temp;
+        temp = config.get("compatibility", "blacklistedPlayerInventory", new int[]{}, "A list of slots from the player's inventory to ignore upon death. (Defaults to nothing).").getIntList();
+
+        for (int val : temp)
+        {
+            BLACKLISTED_PLAYER_INVENTORY.add(val);
+        }
 
         config.save();
     }

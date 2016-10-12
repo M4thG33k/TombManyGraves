@@ -4,6 +4,7 @@ import baubles.api.BaublesApi;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.items.ModItems;
+import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import lain.mods.cos.CosmeticArmorReworked;
 import lain.mods.cos.inventory.InventoryCosArmor;
@@ -42,40 +43,44 @@ public class DeathInventory {
 
 
         InventoryPlayer inventoryToWrite = TileDeathBlock.getInventorySansSoulbound(player.inventory, false);
-        inventoryToWrite.writeToNBT(tagList);
+        if (TombManyGravesConfigs.ALLOW_MAIN_INVENTORY) {
+            inventoryToWrite.writeToNBT(tagList);
+        }
 //      player.inventory.writeToNBT(tagList);
         allNBT.setTag("Main", tagList);
 
         NBTTagCompound baublesNBT = new NBTTagCompound();
-        if (TombManyGraves.isBaublesInstalled) {
-            baublesNBT = BaubleHandler.getBaubleNBT(BaublesApi.getBaublesHandler(player));
+        if (TombManyGraves.isBaublesInstalled && TombManyGravesConfigs.ALLOW_BAUBLES) {
+            baublesNBT = TileDeathBlock.getBaublesNBTSansSoulbound(player, false);
+//            baublesNBT = BaubleHandler.getBaubleNBT(BaublesApi.getBaublesHandler(player));
 //            PlayerHandler.getPlayerBaubles(player).saveNBT(baublesNBT);
         }
         allNBT.setTag("Baubles", baublesNBT);
 
         NBTTagCompound cosmeticNBT = new NBTTagCompound();
-        if (TombManyGraves.isCosmeticArmorInstalled)
+        if (TombManyGraves.isCosmeticArmorInstalled && TombManyGravesConfigs.ALLOW_COSMETIC_ARMOR)
         {
-            CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID()).writeToNBT(cosmeticNBT);
+            cosmeticNBT = TileDeathBlock.getCosmeticNBTSansSoulbound(player, false);
+//            CosmeticArmorReworked.invMan.getCosArmorInventory(player.getUniqueID()).writeToNBT(cosmeticNBT);
         }
         allNBT.setTag("Cosmetic", cosmeticNBT);
 
         NBTTagCompound expandableBackpackNBT = new NBTTagCompound();
-        if (TombManyGraves.isExpandableBackpacksInstalled)
+        if (TombManyGraves.isExpandableBackpacksInstalled && TombManyGravesConfigs.ALLOW_EXPANDABLE_BACKPACKS)
         {
             expandableBackpackNBT = TileDeathBlock.getExpandableBackpackNBTSansSoulbound(player, false);
         }
         allNBT.setTag("ExpandableBackpack",expandableBackpackNBT);
 
         NBTTagCompound eydamosBackpackNBT = new NBTTagCompound();
-        if (TombManyGraves.isEydamosBackpacksInstalled)
+        if (TombManyGraves.isEydamosBackpacksInstalled && TombManyGravesConfigs.ALLOW_EYDAMOS_BACKPACKS)
         {
             eydamosBackpackNBT = TileDeathBlock.getEydamosBackpackNBTSansSoulbound(player, false);
         }
         allNBT.setTag("EydamosBackpack", eydamosBackpackNBT);
 
         NBTTagCompound thutNBT = new NBTTagCompound();
-        if (TombManyGraves.isThutWearablesInstalled)
+        if (TombManyGraves.isThutWearablesInstalled && TombManyGravesConfigs.ALLOW_THUT_WEARABLES)
         {
             thutNBT = TileDeathBlock.getThutNBTSansSoulbound(player, false);
         }

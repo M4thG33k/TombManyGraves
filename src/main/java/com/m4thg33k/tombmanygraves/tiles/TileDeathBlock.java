@@ -37,6 +37,8 @@ import thut.wearables.inventory.PlayerWearables;
 import thut.wearables.inventory.WearableHandler;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
@@ -94,28 +96,31 @@ public class TileDeathBlock extends TileEntity {
 
         setPlayerName(player.getName());
         setPlayerID(player.getUniqueID());
-        setThisInventory(player.inventory);
+        if (TombManyGravesConfigs.ALLOW_MAIN_INVENTORY)
+        {
+            setThisInventory(player.inventory);
+        }
 
-        if (TombManyGraves.isBaublesInstalled)
+        if (TombManyGraves.isBaublesInstalled && TombManyGravesConfigs.ALLOW_BAUBLES)
         {
             setBaubleInventory(player);
         }
-        if (TombManyGraves.isCosmeticArmorInstalled)
+        if (TombManyGraves.isCosmeticArmorInstalled && TombManyGravesConfigs.ALLOW_COSMETIC_ARMOR)
         {
             setCosmeticInventory(player);
         }
 
-        if (TombManyGraves.isExpandableBackpacksInstalled)
+        if (TombManyGraves.isExpandableBackpacksInstalled && TombManyGravesConfigs.ALLOW_EXPANDABLE_BACKPACKS)
         {
             setExpandableBackpackInventory(player);
         }
 
-        if (TombManyGraves.isEydamosBackpacksInstalled)
+        if (TombManyGraves.isEydamosBackpacksInstalled && TombManyGravesConfigs.ALLOW_EYDAMOS_BACKPACKS)
         {
             setEydamosBackpackInventory(player);
         }
 
-        if (TombManyGraves.isThutWearablesInstalled)
+        if (TombManyGraves.isThutWearablesInstalled && TombManyGravesConfigs.ALLOW_THUT_WEARABLES)
         {
             setThutInventory(player);
         }
@@ -787,11 +792,16 @@ public class TileDeathBlock extends TileEntity {
         return false;
     }
 
-    public static void copyInventoryWithoutSoulbound(IInventory original,IInventory newer, boolean clearOriginal)
+    public static void copyInventoryWithoutSoulbound(IInventory original, IInventory newer, boolean clearOriginal)
+    {
+        copyInventoryWithoutSoulbound(original, newer, clearOriginal, new ArrayList<Integer>());
+    }
+
+    public static void copyInventoryWithoutSoulbound(IInventory original,IInventory newer, boolean clearOriginal, ArrayList<Integer> blacklistedSlots)
     {
         for (int i=0; i<newer.getSizeInventory();i++)
         {
-            if (isValidForGrave(original.getStackInSlot(i)))
+            if (!(blacklistedSlots.contains(i)) && isValidForGrave(original.getStackInSlot(i)))
             {
                 newer.setInventorySlotContents(i, original.getStackInSlot(i).copy());
                 if (clearOriginal)
@@ -805,9 +815,10 @@ public class TileDeathBlock extends TileEntity {
     public static InventoryPlayer getInventorySansSoulbound(InventoryPlayer original,boolean clearOriginal)
     {
         InventoryPlayer toReturn = new InventoryPlayer(original.player);
-        copyInventoryWithoutSoulbound(original, toReturn, clearOriginal);
+        copyInventoryWithoutSoulbound(original, toReturn, clearOriginal, TombManyGravesConfigs.BLACKLISTED_PLAYER_INVENTORY);
         return toReturn;
     }
+
 
     public static NBTTagCompound getBaublesNBTSansSoulbound(EntityPlayer player, boolean clearOriginal)
     {
