@@ -17,6 +17,8 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
+import thut.wearables.inventory.PlayerWearables;
+import thut.wearables.inventory.WearableHandler;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -71,6 +73,13 @@ public class DeathInventory {
             eydamosBackpackNBT = TileDeathBlock.getEydamosBackpackNBTSansSoulbound(player, false);
         }
         allNBT.setTag("EydamosBackpack", eydamosBackpackNBT);
+
+        NBTTagCompound thutNBT = new NBTTagCompound();
+        if (TombManyGraves.isThutWearablesInstalled)
+        {
+            thutNBT = TileDeathBlock.getThutNBTSansSoulbound(player, false);
+        }
+        allNBT.setTag("ThutWearables", thutNBT);
 
         NBTTagCompound miscNBT = new NBTTagCompound();
         boolean flag = pos == null;
@@ -191,6 +200,12 @@ public class DeathInventory {
                     player.worldObj.spawnEntityInWorld(new EntityItem(player.worldObj, position.getX(), position.getY(), position.getZ(), stack));
                 }
             }
+            if (TombManyGraves.isThutWearablesInstalled)
+            {
+                PlayerWearables playerWearables = new PlayerWearables();
+                playerWearables.readFromNBT(allNBT.getCompoundTag("ThutWearables"));
+                InventoryHelper.dropInventoryItems(player.worldObj, position, playerWearables);
+            }
             reader.close();
         }
         catch (Exception e)
@@ -250,6 +265,15 @@ public class DeathInventory {
                 {
                     player.worldObj.spawnEntityInWorld(new EntityItem(player.worldObj, player.posX, player.posY, player.posZ, stack));
                 }
+            }
+
+            if (TombManyGraves.isThutWearablesInstalled)
+            {
+//                PlayerWearables playerWearables = new PlayerWearables();
+//                playerWearables.readFromNBT(allNBT.getCompoundTag("ThutWearables"));
+
+                ((IInventory)WearableHandler.getInstance().getPlayerData(player)).clear();
+                WearableHandler.getInstance().getPlayerData(player).readFromNBT(allNBT.getCompoundTag("ThutWearables"));
             }
 
             reader.close();

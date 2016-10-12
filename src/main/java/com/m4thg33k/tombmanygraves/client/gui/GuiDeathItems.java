@@ -20,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+import thut.wearables.inventory.PlayerWearables;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ public class GuiDeathItems extends GuiScreen {
     private List<String> cosmeticItems;
     private List<String> expandableBackpackItems;
     private List<String> eydamosBackpackItems;
+    private List<String> thutItems;
 
     private Scrollbar scrollbar;
 
@@ -49,6 +51,7 @@ public class GuiDeathItems extends GuiScreen {
     private static String COSMETIC = "Cosmetic Armor";
     private static String EXPANDABLE = "Expandable Backpack";
     private static String EYDAMOS = "Eydamos Backpack";
+    private static String THUT = "Thut Wearables";
     private static String LINE = "-----------------------------";
     private static String EOF = "END OF FILE";
 
@@ -65,6 +68,7 @@ public class GuiDeathItems extends GuiScreen {
         createListOfItemsInCosmeticInventory();
         createListOfItemsInExpandableBackpack();
         createListOfItemsInEydamosBackpack();
+        createListOfItemsInThut();
 
         END_OF_FILE = new ArrayList<String>();
         END_OF_FILE.add(LINE);
@@ -96,6 +100,7 @@ public class GuiDeathItems extends GuiScreen {
         endHeight = drawCosmeticItems(endHeight);
         endHeight = drawExpandableBackpackItems(endHeight);
         endHeight = drawEydamosBackpackItems(endHeight);
+        endHeight = drawThutItems(endHeight);
 
         drawEOF(endHeight);
     }
@@ -252,6 +257,32 @@ public class GuiDeathItems extends GuiScreen {
         return startHeight + counter*10;
     }
 
+    private int drawThutItems(int startHeight)
+    {
+        if (thutItems.size() < 4)
+        {
+            return startHeight;
+        }
+
+        int height;
+        int gLeft= getGuiLeft();
+        int gTop = getGuiTop();
+
+        int counter = 0;
+        for (int i=0; i<thutItems.size(); i++)
+        {
+            height = startHeight + 10*i + (int)scrollbar.getCurrentScroll()*(-10) + 10;
+            counter += 1;
+            if (height < 4 || height >= ySize - 12)
+            {
+                continue;
+            }
+            this.fontRendererObj.drawString(thutItems.get(i), gLeft+12, gTop+height, 0);
+        }
+
+        return startHeight + counter*10;
+    }
+
     private void drawEOF(int startHeight)
     {
         int height;
@@ -331,6 +362,21 @@ public class GuiDeathItems extends GuiScreen {
         cosArmor.readFromNBT(tag);
 
         cosmeticItems = createListFromInventory(cosArmor, COSMETIC);
+    }
+
+    private void createListOfItemsInThut()
+    {
+        if (!TombManyGraves.isThutWearablesInstalled)
+        {
+            thutItems = new ArrayList<String>();
+            return;
+        }
+
+        NBTTagCompound tag = deathList.getTagCompound().getCompoundTag("ThutWearables");
+        PlayerWearables playerWearables = new PlayerWearables();
+        playerWearables.readFromNBT(tag);
+
+        thutItems = createListFromInventory(playerWearables, THUT);
     }
 
     private void createListOfItemsInExpandableBackpack()
