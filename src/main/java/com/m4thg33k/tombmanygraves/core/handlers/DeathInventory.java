@@ -1,14 +1,12 @@
 package com.m4thg33k.tombmanygraves.core.handlers;
 
-import baubles.common.container.InventoryBaubles;
-import baubles.common.lib.PlayerHandler;
+import baubles.api.BaublesApi;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.items.ModItems;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import lain.mods.cos.CosmeticArmorReworked;
 import lain.mods.cos.inventory.InventoryCosArmor;
-import lellson.expandablebackpack.inventory.iinventory.BackpackSlotInventory;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -48,7 +46,8 @@ public class DeathInventory {
 
         NBTTagCompound baublesNBT = new NBTTagCompound();
         if (TombManyGraves.isBaublesInstalled) {
-            PlayerHandler.getPlayerBaubles(player).saveNBT(baublesNBT);
+            baublesNBT = BaubleHandler.getBaubleNBT(BaublesApi.getBaublesHandler(player));
+//            PlayerHandler.getPlayerBaubles(player).saveNBT(baublesNBT);
         }
         allNBT.setTag("Baubles", baublesNBT);
 
@@ -163,8 +162,9 @@ public class DeathInventory {
 
             if (TombManyGraves.isBaublesInstalled)
             {
-                InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
-                inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
+                IInventory inventoryBaubles = BaubleHandler.getSavedBaubles(allNBT.getCompoundTag("Baubles"), BaublesApi.getBaublesHandler(player));
+//                InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
+//                inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
                 InventoryHelper.dropInventoryItems(player.worldObj, position, inventoryBaubles);
             }
 
@@ -219,9 +219,10 @@ public class DeathInventory {
 
             if (TombManyGraves.isBaublesInstalled)
             {
-                InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
-                inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
-                PlayerHandler.setPlayerBaubles(player,inventoryBaubles);
+                BaubleHandler.setPlayerBaubles(player,allNBT.getCompoundTag("Baubles") );
+//                InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
+//                inventoryBaubles.readNBT(allNBT.getCompoundTag("Baubles"));
+//                PlayerHandler.setPlayerBaubles(player,inventoryBaubles);
             }
 
             if (TombManyGraves.isCosmeticArmorInstalled)

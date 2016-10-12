@@ -28,7 +28,7 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.2"
 }
 */
-version = "1.10.2-2.1.10"
+version = "1.10.2-2.1.11"
 group= "com.m4thg33k.tombmanygraves" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "TombManyGraves"
 
@@ -37,7 +37,7 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 minecraft {
-    version = "1.10.2-12.18.1.2093"
+    version = "1.10.2-12.18.2.2105"
     runDir = "run"
 
 
@@ -82,7 +82,7 @@ dependencies {
 
 
     //for JEI stuff
-    deobfCompile "mezz.jei:jei_1.10.2:3.10.0.262"
+    deobfCompile "mezz.jei:jei_1.10.2:3.12.7.314"
     //end for JEI stuff
 }
 

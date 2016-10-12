@@ -1,12 +1,11 @@
 package com.m4thg33k.tombmanygraves.client.gui;
 
-import baubles.common.container.InventoryBaubles;
+import baubles.api.BaublesApi;
+import baubles.api.cap.IBaublesItemHandler;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
-import com.m4thg33k.tombmanygraves.core.util.LogHelper;
+import com.m4thg33k.tombmanygraves.core.handlers.BaubleHandler;
 import de.eydamos.backpack.data.BackpackSave;
-import de.eydamos.backpack.helper.BackpackHelper;
 import de.eydamos.backpack.item.ItemBackpack;
-import de.eydamos.backpack.misc.Constants;
 import lain.mods.cos.inventory.InventoryCosArmor;
 import lellson.expandablebackpack.inventory.iinventory.BackpackInventory;
 import lellson.expandablebackpack.item.backpack.Backpack;
@@ -21,7 +20,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.MapStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -311,10 +309,14 @@ public class GuiDeathItems extends GuiScreen {
             return;
         }
         NBTTagCompound tag = deathList.getTagCompound().getCompoundTag("Baubles");
-        InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
-        inventoryBaubles.readNBT(tag);
+        IBaublesItemHandler inventoryBaubles = BaublesApi.getBaublesHandler(player);
 
-        baubleItems = createListFromInventory(inventoryBaubles,BAUBLES);
+        IInventory baubles = BaubleHandler.getSavedBaubles(tag, inventoryBaubles);
+
+//        InventoryBaubles inventoryBaubles = new InventoryBaubles(player);
+//        inventoryBaubles.readNBT(tag);
+
+        baubleItems = createListFromInventory(baubles,BAUBLES);
     }
 
     private  void createListOfItemsInCosmeticInventory()
