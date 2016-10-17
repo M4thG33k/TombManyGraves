@@ -1,6 +1,7 @@
 package com.m4thg33k.tombmanygraves.core.handlers;
 
 import baubles.api.BaublesApi;
+import baubles.api.cap.BaublesContainer;
 import baubles.api.cap.IBaublesItemHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -37,6 +38,12 @@ public class BaubleHandler {
         return compound;
     }
 
+    public static NBTTagCompound getBaubleNBT(EntityPlayer player)
+    {
+        IBaublesItemHandler iBaublesItemHandler = BaublesApi.getBaublesHandler(player);
+        return getBaubleNBT(iBaublesItemHandler);
+    }
+
     public static NBTTagCompound getBaubleNBT(IBaublesItemHandler baubles)
     {
         NBTTagCompound compound = new NBTTagCompound();
@@ -62,6 +69,11 @@ public class BaubleHandler {
         return compound;
     }
 
+    public static IInventory getSavedBaubles(NBTTagCompound compound)
+    {
+        return getSavedBaubles(compound, new BaublesContainer());
+    }
+
     public static IInventory getSavedBaubles(NBTTagCompound compound, IBaublesItemHandler baubles)
     {
         InventoryBasic basic = new InventoryBasic("SavedBaubles", false, baubles.getSlots());
@@ -77,6 +89,11 @@ public class BaubleHandler {
         return basic;
     }
 
+    public static IInventory getSavedBaubles(NBTTagCompound compound, EntityPlayer player)
+    {
+        return getSavedBaubles(compound, BaublesApi.getBaublesHandler(player));
+    }
+
     public static IInventory getCurrentBaubles(IBaublesItemHandler baubles)
     {
         InventoryBasic basic = new InventoryBasic("CurrentBaubles", false, baubles.getSlots());
@@ -87,6 +104,11 @@ public class BaubleHandler {
         }
 
         return basic;
+    }
+
+    public static IInventory getCurrentBaubles(EntityPlayer player)
+    {
+        return getCurrentBaubles(BaublesApi.getBaublesHandler(player));
     }
 
     public static void setPlayerBaubles(EntityPlayer player, NBTTagCompound compound)
@@ -119,5 +141,10 @@ public class BaubleHandler {
         {
             handler.setStackInSlot(i, null);
         }
+    }
+
+    public static int getNumSlots()
+    {
+        return new BaublesContainer().getSlots();
     }
 }

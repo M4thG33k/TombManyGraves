@@ -1,8 +1,5 @@
 package com.m4thg33k.tombmanygraves.tiles;
 
-import baubles.api.BaublesApi;
-import baubles.api.cap.BaublesContainer;
-import baubles.api.cap.IBaublesItemHandler;
 import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.blocks.BlockDeath;
 import com.m4thg33k.tombmanygraves.core.handlers.BaubleHandler;
@@ -38,7 +35,6 @@ import thut.wearables.inventory.WearableHandler;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
@@ -373,15 +369,16 @@ public class TileDeathBlock extends TileEntity {
     }
 
     public void swapPlayerBaubles(EntityPlayer player){
-        IBaublesItemHandler iBaublesItemHandler = BaublesApi.getBaublesHandler(player);
+//        IBaublesItemHandler iBaublesItemHandler = BaublesApi.getBaublesHandler(player);
 //        IInventory playerBaubles = BaubleHandler.getCurrentBaubles(iBaublesItemHandler);
 //        InventoryBaubles playerBaubles = PlayerHandler.getPlayerBaubles(player);
-        NBTTagCompound playerB = BaubleHandler.getBaubleNBT(iBaublesItemHandler);
+//        NBTTagCompound playerB = BaubleHandler.getBaubleNBT(iBaublesItemHandler);
 //        IInventory savedBaubles = BaubleHandler.getSavedBaubles(baublesNBT, iBaublesItemHandler);
 //        NBTTagCompound playerB = new NBTTagCompound();
 //        playerBaubles.saveNBT(playerB);
 //        InventoryBaubles currentBaubles = new InventoryBaubles(player);
 //        currentBaubles.readNBT(playerB);
+        NBTTagCompound playerB = BaubleHandler.getBaubleNBT(player);
         BaubleHandler.clearBaubles(player);
 //        ((IInventory)playerBaubles).clear();
         replaceBaublesInventory(player);
@@ -478,8 +475,8 @@ public class TileDeathBlock extends TileEntity {
 
     public void replaceBaublesInventory(EntityPlayer player)
     {
-        IInventory currentBaubles = BaubleHandler.getCurrentBaubles(BaublesApi.getBaublesHandler(player));
-        IInventory savedBaubles = BaubleHandler.getSavedBaubles(baublesNBT, BaublesApi.getBaublesHandler(player));
+        IInventory currentBaubles = BaubleHandler.getCurrentBaubles(player);
+        IInventory savedBaubles = BaubleHandler.getSavedBaubles(baublesNBT, player);
 
 //        IInventory currentBaubles = PlayerHandler.getPlayerBaubles(player);
 //        InventoryBaubles savedBaubles = new InventoryBaubles(player);
@@ -508,7 +505,7 @@ public class TileDeathBlock extends TileEntity {
     {
         IInventory backpackInventory = new BackpackSlotInventory(player);
         ItemStack savedBackpack = ItemStack.loadItemStackFromNBT(expandableBackpackNBT);
-        if (savedBackpack.stackSize == 0)
+        if (savedBackpack == null || savedBackpack.stackSize == 0)
         {
             return;
         }
@@ -607,7 +604,7 @@ public class TileDeathBlock extends TileEntity {
         InventoryHelper.dropInventoryItems(worldObj, pos, savedPlayerInventory);
         if (TombManyGraves.isBaublesInstalled)
         {
-            InventoryHelper.dropInventoryItems(worldObj, pos, BaubleHandler.getSavedBaubles(baublesNBT, new BaublesContainer()));
+            InventoryHelper.dropInventoryItems(worldObj, pos, BaubleHandler.getSavedBaubles(baublesNBT));
 //            InventoryBaubles baubles = new InventoryBaubles(null);
 //            baubles.readNBT(baublesNBT);
 //            InventoryHelper.dropInventoryItems(worldObj, pos, baubles);
@@ -655,7 +652,7 @@ public class TileDeathBlock extends TileEntity {
 
         if (TombManyGraves.isBaublesInstalled)
         {
-            toReturn = toReturn && isSpecificInventoryEmpty(BaubleHandler.getCurrentBaubles(BaublesApi.getBaublesHandler(player))); //isSpecificInventoryEmpty(PlayerHandler.getPlayerBaubles(player));
+            toReturn = toReturn && isSpecificInventoryEmpty(BaubleHandler.getCurrentBaubles(player)); //isSpecificInventoryEmpty(PlayerHandler.getPlayerBaubles(player));
         }
 
         if (TombManyGraves.isCosmeticArmorInstalled)
@@ -822,9 +819,9 @@ public class TileDeathBlock extends TileEntity {
 
     public static NBTTagCompound getBaublesNBTSansSoulbound(EntityPlayer player, boolean clearOriginal)
     {
-        IInventory toReturn = new InventoryBasic("Temp", false, new BaublesContainer().getSlots());
+        IInventory toReturn = new InventoryBasic("Temp", false, BaubleHandler.getNumSlots());
 //        InventoryBaubles toReturn = new InventoryBaubles(player);
-        IInventory current = BaubleHandler.getCurrentBaubles(BaublesApi.getBaublesHandler(player));
+        IInventory current = BaubleHandler.getCurrentBaubles(player);
 //        InventoryBaubles current = PlayerHandler.getPlayerBaubles(player);
 
         copyInventoryWithoutSoulbound(current, toReturn, clearOriginal);
