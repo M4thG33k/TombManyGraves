@@ -52,7 +52,7 @@ public class TileDeathBlock extends TileEntity {
     private NBTTagCompound thutNBT = new NBTTagCompound();
     private boolean locked = false;
 
-    private UUID playerID = null;
+    private UUID playerID = UUID.fromString("905379e2-068f-44c9-965b-6b9fbe1a6140");
 
     private int angle = 0;
 
@@ -251,7 +251,10 @@ public class TileDeathBlock extends TileEntity {
 
         compound.setBoolean("IsLocked", locked);
 
-        compound.setUniqueId("PlayerID", playerID);
+        if (playerID != null) //it should never be null as long as we're getting info for a valid player
+        {
+            compound.setUniqueId("PlayerID", playerID);
+        }
 
         compound.setBoolean("GravePriority",GIVE_PRIORITY_TO_GRAVE);
 
