@@ -5,8 +5,13 @@ import com.m4thg33k.tombmanygraves.blocks.BlockDeath;
 import com.m4thg33k.tombmanygraves.core.handlers.BaubleHandler;
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
+import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import de.eydamos.backpack.data.PlayerSave;
+import gr8pefish.ironbackpacks.api.items.backpacks.interfaces.IBackpack;
+import gr8pefish.ironbackpacks.capabilities.player.PlayerWearingBackpackCapabilities;
+import gr8pefish.ironbackpacks.items.upgrades.UpgradeMethods;
+import gr8pefish.ironbackpacks.util.helpers.IronBackpacksHelper;
 import lain.mods.cos.CosmeticArmorReworked;
 import lain.mods.cos.inventory.InventoryCosArmor;
 import lellson.expandablebackpack.inventory.iinventory.BackpackSlotInventory;
@@ -50,6 +55,7 @@ public class TileDeathBlock extends TileEntity {
     private NBTTagCompound expandableBackpackNBT = new NBTTagCompound();
     private NBTTagCompound eydamosBackpackNBT = new NBTTagCompound();
     private NBTTagCompound thutNBT = new NBTTagCompound();
+    private NBTTagCompound ironBackpackSlotNBT = new NBTTagCompound();
     private boolean locked = false;
 
     private UUID playerID = UUID.fromString("905379e2-068f-44c9-965b-6b9fbe1a6140");
@@ -121,6 +127,11 @@ public class TileDeathBlock extends TileEntity {
             setThutInventory(player);
         }
 
+        if (TombManyGraves.isIronBackpacksInstalled && TombManyGravesConfigs.ALLOW_IRON_BACKPACKS)
+        {
+            setIronBackpacksInventory(player);
+        }
+
 
         this.markDirty();
         worldObj.markAndNotifyBlock(pos, null, worldObj.getBlockState(pos), worldObj.getBlockState(pos), 1);
@@ -153,6 +164,19 @@ public class TileDeathBlock extends TileEntity {
     public void setThutInventory(EntityPlayer player)
     {
         this.thutNBT = getThutNBTSansSoulbound(player, true);
+    }
+
+    public void setIronBackpacksInventory(EntityPlayer player)
+    {
+        ItemStack equippedPack = PlayerWearingBackpackCapabilities.getEquippedBackpack(player);
+        if (isValidForGrave(equippedPack))
+        {
+            equippedPack.writeToNBT(ironBackpackSlotNBT);
+            PlayerWearingBackpackCapabilities.setEquippedBackpack(player, null);
+            LogHelper.info("NULLIFYING BACKPACK!");
+
+
+        }
     }
 
     public static boolean isValidForGrave(ItemStack stack)
@@ -208,6 +232,8 @@ public class TileDeathBlock extends TileEntity {
         expandableBackpackNBT = compound.getCompoundTag("ExpandableBackpackNBT");
         eydamosBackpackNBT = compound.getCompoundTag("EydamosBackpackNBT");
         thutNBT = compound.getCompoundTag("ThutNBT");
+        ironBackpackSlotNBT = compound.getCompoundTag("IronBackpacksNBT");
+
         angle = compound.getInteger("AngleOfDeath");
 
         locked = compound.getBoolean("IsLocked");
@@ -265,6 +291,8 @@ public class TileDeathBlock extends TileEntity {
         }
 
         compound.setTag("CosmeticNBT",cosmeticNBT);
+
+        compound.setTag("IronBackpacksNBT", ironBackpackSlotNBT);
 
         compound.setString("Timestamp", timestamp);
 
@@ -355,6 +383,16 @@ public class TileDeathBlock extends TileEntity {
                 else
                 {
                     replaceThutInventory(player);
+                }
+            }
+            if (TombManyGraves.isIronBackpacksInstalled)
+            {
+                if (GIVE_PRIORITY_TO_GRAVE)
+                {
+                    swapIronBackpacks(player);
+                }
+                else {
+                    replaceIronBackpacks(player);
                 }
             }
         }
@@ -451,6 +489,23 @@ public class TileDeathBlock extends TileEntity {
         thutNBT = new NBTTagCompound();
     }
 
+    public void swapIronBackpacks(EntityPlayer player)
+    {
+        LogHelper.info("DEBUG LINE");
+        ItemStack savedBackpack = ItemStack.loadItemStackFromNBT(ironBackpackSlotNBT);
+        if (savedBackpack != null && savedBackpack.stackSize > 0)
+        {
+            ItemStack currentPack = PlayerWearingBackpackCapabilities.getEquippedBackpack(player);
+            if (currentPack != null)
+            {
+                EntityItem toDrop = new EntityItem(worldObj, player.posX, player.posY, player.posZ, currentPack);
+                worldObj.spawnEntityInWorld(toDrop);
+            }
+            PlayerWearingBackpackCapabilities.setEquippedBackpack(player, savedBackpack);
+            ironBackpackSlotNBT = new NBTTagCompound();
+        }
+    }
+
     public void replaceSpecificInventory(EntityPlayer player, IInventory playerInventory, IInventory savedInventory)
     {
         for (int i=0; i < playerInventory.getSizeInventory(); i++)
@@ -467,6 +522,25 @@ public class TileDeathBlock extends TileEntity {
                     worldObj.spawnEntityInWorld(entityItem);
                 }
             }
+        }
+    }
+
+    public void replaceIronBackpacks(EntityPlayer player)
+    {
+        LogHelper.info("DEBUG LINE REPLACE IRON BACKPACK");
+        ItemStack savedBackpack = ItemStack.loadItemStackFromNBT(ironBackpackSlotNBT);
+        if (savedBackpack != null && savedBackpack.stackSize > 0)
+        {
+            ItemStack currentPack = PlayerWearingBackpackCapabilities.getEquippedBackpack(player);
+            if (currentPack != null)
+            {
+                EntityItem toDrop = new EntityItem(worldObj, player.posX, player.posY, player.posZ, savedBackpack);
+                worldObj.spawnEntityInWorld(toDrop);
+            }
+            else {
+                PlayerWearingBackpackCapabilities.setEquippedBackpack(player, savedBackpack);
+            }
+            ironBackpackSlotNBT = new NBTTagCompound();
         }
     }
 
@@ -647,6 +721,16 @@ public class TileDeathBlock extends TileEntity {
             playerWearables.readFromNBT(thutNBT);
             InventoryHelper.dropInventoryItems(worldObj, pos, playerWearables);
         }
+
+        if (TombManyGraves.isIronBackpacksInstalled)
+        {
+            ItemStack pack = ItemStack.loadItemStackFromNBT(ironBackpackSlotNBT);
+            if (pack!=null && pack.stackSize > 0)
+            {
+                EntityItem entityItem = new EntityItem(worldObj, pos.getX(), pos.getY(), pos.getZ(), pack);
+                worldObj.spawnEntityInWorld(entityItem);
+            }
+        }
     }
 
     public static boolean isInventoryEmpty(EntityPlayer player)
@@ -679,6 +763,11 @@ public class TileDeathBlock extends TileEntity {
             toReturn = toReturn && isSpecificInventoryEmpty(WearableHandler.getInstance().getPlayerData(player));
         }
 
+        if (TombManyGraves.isIronBackpacksInstalled)
+        {
+            toReturn = toReturn && !doesPlayerHaveIronBackpackForGrave(player);
+        }
+
         return toReturn;
     }
 
@@ -693,6 +782,12 @@ public class TileDeathBlock extends TileEntity {
         }
 
         return true;
+    }
+
+    public static boolean doesPlayerHaveIronBackpackForGrave(EntityPlayer player)
+    {
+        ItemStack pack = PlayerWearingBackpackCapabilities.getEquippedBackpack(player);
+        return pack != null && !UpgradeMethods.hasEternityUpgrade(IronBackpacksHelper.getUpgradesAppliedFromNBT(pack));
     }
 
     public boolean isLocked()
@@ -772,12 +867,12 @@ public class TileDeathBlock extends TileEntity {
 
     public static boolean hasSoulboundEnchantment(ItemStack stack)
     {
-        if (stack == null || stack.stackSize == 0 || !TombManyGraves.isEnderIOInstalled)
+        if (stack == null || stack.stackSize == 0)
         {
             return false;
         }
 
-        if (true)
+        if (TombManyGraves.isEnderIOInstalled)
         {
             Map<Enchantment, Integer> enchantMap = EnchantmentHelper.getEnchantments(stack);
             for (Enchantment enchantment : enchantMap.keySet())
@@ -787,6 +882,14 @@ public class TileDeathBlock extends TileEntity {
                 {
                     return enchantMap.get(enchantment) > 0;
                 }
+            }
+        }
+
+        if (TombManyGraves.isIronBackpacksInstalled)
+        {
+            if (stack.getItem() instanceof IBackpack && UpgradeMethods.hasEternityUpgrade(IronBackpacksHelper.getUpgradesAppliedFromNBT(stack)))
+            {
+                return true;
             }
         }
         return false;
@@ -917,5 +1020,8 @@ public class TileDeathBlock extends TileEntity {
         baublesNBT = new NBTTagCompound();
         cosmeticNBT = new NBTTagCompound();
         expandableBackpackNBT = new NBTTagCompound();
+        eydamosBackpackNBT = new NBTTagCompound();
+        thutNBT = new NBTTagCompound();
+        ironBackpackSlotNBT = new NBTTagCompound();
     }
 }

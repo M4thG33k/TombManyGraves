@@ -6,6 +6,8 @@ import com.m4thg33k.tombmanygraves.TombManyGraves;
 import com.m4thg33k.tombmanygraves.core.handlers.BaubleHandler;
 import de.eydamos.backpack.data.BackpackSave;
 import de.eydamos.backpack.item.ItemBackpack;
+import gr8pefish.ironbackpacks.container.backpack.InventoryBackpack;
+import gr8pefish.ironbackpacks.util.helpers.IronBackpacksHelper;
 import lain.mods.cos.inventory.InventoryCosArmor;
 import lellson.expandablebackpack.inventory.iinventory.BackpackInventory;
 import lellson.expandablebackpack.item.backpack.Backpack;
@@ -39,6 +41,7 @@ public class GuiDeathItems extends GuiScreen {
     private List<String> expandableBackpackItems;
     private List<String> eydamosBackpackItems;
     private List<String> thutItems;
+    private List<String> ironBackpackItems;
 
     private Scrollbar scrollbar;
 
@@ -52,6 +55,7 @@ public class GuiDeathItems extends GuiScreen {
     private static String EXPANDABLE = "Expandable Backpack";
     private static String EYDAMOS = "Eydamos Backpack";
     private static String THUT = "Thut Wearables";
+    private static String IRON = "Iron Backpack";
     private static String LINE = "-----------------------------";
     private static String EOF = "END OF FILE";
 
@@ -69,6 +73,7 @@ public class GuiDeathItems extends GuiScreen {
         createListOfItemsInExpandableBackpack();
         createListOfItemsInEydamosBackpack();
         createListOfItemsInThut();
+        createListOfItemsInIronBackpack();
 
         END_OF_FILE = new ArrayList<String>();
         END_OF_FILE.add(LINE);
@@ -101,6 +106,7 @@ public class GuiDeathItems extends GuiScreen {
         endHeight = drawExpandableBackpackItems(endHeight);
         endHeight = drawEydamosBackpackItems(endHeight);
         endHeight = drawThutItems(endHeight);
+        endHeight = drawIronBackpackItems(endHeight);
 
         drawEOF(endHeight);
     }
@@ -283,6 +289,32 @@ public class GuiDeathItems extends GuiScreen {
         return startHeight + counter*10;
     }
 
+    private int drawIronBackpackItems(int startHeight)
+    {
+        if (ironBackpackItems.size() < 4)
+        {
+            return startHeight;
+        }
+
+        int height;
+        int gLeft = getGuiLeft();
+        int gTop = getGuiTop();
+
+        int counter = 0;
+        for (int i=0; i<ironBackpackItems.size(); i++)
+        {
+            height = startHeight + 10*i + (int)scrollbar.getCurrentScroll()*(-10) + 10;
+            counter += 1;
+            if (height < 4 || height >= ySize - 12)
+            {
+                continue;
+            }
+            this.fontRendererObj.drawString(ironBackpackItems.get(i), gLeft + 12, gTop+height, 0);
+        }
+
+        return startHeight + counter*10;
+    }
+
     private void drawEOF(int startHeight)
     {
         int height;
@@ -425,6 +457,26 @@ public class GuiDeathItems extends GuiScreen {
 
     }
 
+    private void createListOfItemsInIronBackpack()
+    {
+        if (!TombManyGraves.isIronBackpacksInstalled)
+        {
+            ironBackpackItems = new ArrayList<>();
+            return;
+        }
+        NBTTagCompound tag = deathList.getTagCompound().getCompoundTag("IronBackpacks");
+        ItemStack stack = ItemStack.loadItemStackFromNBT(tag);
+        if (stack == null || stack.stackSize == 0)
+        {
+            ironBackpackItems = new ArrayList<>();
+            return;
+        }
+
+        IInventory inventory = new InventoryBackpack(stack, true);
+
+        ironBackpackItems = createListFromInventory(inventory, IRON);
+    }
+
     private List<String> createBoringListFromInventory(IInventory inventory)
     {
         List<String> stringList = new ArrayList<>();
@@ -508,6 +560,37 @@ public class GuiDeathItems extends GuiScreen {
                     else
                     {
                         stringList.add("  (Backpack empty");
+                    }
+                }
+                if (TombManyGraves.isIronBackpacksInstalled && inSlot.getItem() instanceof gr8pefish.ironbackpacks.items.backpacks.ItemBackpack)
+                {
+                    IInventory backpackInventory = new InventoryBackpack(inSlot, true);
+                    List<ItemStack> itemStacks = new ArrayList<>();
+                    for (int j=0; j<backpackInventory.getSizeInventory();j++)
+                    {
+                        ItemStack stack = backpackInventory.getStackInSlot(j);
+                        if (stack!=null)
+                        {
+                            itemStacks.add(stack);
+                        }
+                    }
+                    if (itemStacks.size() > 0)
+                    {
+                        stringList.add(" Backpack contents:");
+                        IInventory basicInventory = new InventoryBasic("verytemp", false, itemStacks.size());
+                        for (int j=0; j< itemStacks.size(); j++)
+                        {
+                            basicInventory.setInventorySlotContents(j, itemStacks.get(j));
+                        }
+                        List<String> boringList = createBoringListFromInventory(basicInventory);
+                        for (String item : boringList)
+                        {
+                            stringList.add("  ->" + item);
+                        }
+                    }
+                    else
+                    {
+                        stringList.add("  (Backpack empty)");
                     }
                 }
                 itemNumber += 1;

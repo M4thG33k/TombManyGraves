@@ -6,6 +6,7 @@ import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
 import com.m4thg33k.tombmanygraves.items.ModItems;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
+import gr8pefish.ironbackpacks.capabilities.player.PlayerWearingBackpackCapabilities;
 import lain.mods.cos.CosmeticArmorReworked;
 import lain.mods.cos.inventory.InventoryCosArmor;
 import net.minecraft.entity.item.EntityItem;
@@ -85,6 +86,17 @@ public class DeathInventory {
             thutNBT = TileDeathBlock.getThutNBTSansSoulbound(player, false);
         }
         allNBT.setTag("ThutWearables", thutNBT);
+
+        NBTTagCompound ironBackpack = new NBTTagCompound();
+        if (TombManyGraves.isIronBackpacksInstalled && TombManyGravesConfigs.ALLOW_IRON_BACKPACKS)
+        {
+            ItemStack pack = PlayerWearingBackpackCapabilities.getEquippedBackpack(player);
+            if (pack != null)
+            {
+                pack.writeToNBT(ironBackpack);
+            }
+        }
+        allNBT.setTag("IronBackpacks", ironBackpack);
 
         NBTTagCompound miscNBT = new NBTTagCompound();
         boolean flag = pos == null;
@@ -211,6 +223,16 @@ public class DeathInventory {
                 playerWearables.readFromNBT(allNBT.getCompoundTag("ThutWearables"));
                 InventoryHelper.dropInventoryItems(player.worldObj, position, playerWearables);
             }
+
+            if (TombManyGraves.isIronBackpacksInstalled)
+            {
+                ItemStack pack = ItemStack.loadItemStackFromNBT(allNBT.getCompoundTag("IronBackpacks"));
+                if (pack != null)
+                {
+                    EntityItem item = new EntityItem(player.worldObj, position.getX(), position.getY(), position.getZ(), pack);
+                    player.worldObj.spawnEntityInWorld(item);
+                }
+            }
             reader.close();
         }
         catch (Exception e)
@@ -279,6 +301,15 @@ public class DeathInventory {
 
                 ((IInventory)WearableHandler.getInstance().getPlayerData(player)).clear();
                 WearableHandler.getInstance().getPlayerData(player).readFromNBT(allNBT.getCompoundTag("ThutWearables"));
+            }
+
+            if (TombManyGraves.isIronBackpacksInstalled)
+            {
+                ItemStack pack = ItemStack.loadItemStackFromNBT(allNBT.getCompoundTag("IronBackpacks"));
+                if (pack != null)
+                {
+                    player.worldObj.spawnEntityInWorld(new EntityItem(player.worldObj, player.posX, player.posY, player.posZ, pack));
+                }
             }
 
             reader.close();

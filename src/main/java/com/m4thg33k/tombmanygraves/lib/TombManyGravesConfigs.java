@@ -46,6 +46,7 @@ public class TombManyGravesConfigs {
     public static boolean ALLOW_EXPANDABLE_BACKPACKS;
     public static boolean ALLOW_EYDAMOS_BACKPACKS;
     public static boolean ALLOW_THUT_WEARABLES;
+    public static boolean ALLOW_IRON_BACKPACKS;
 
     public static ArrayList<Integer> BLACKLISTED_PLAYER_INVENTORY = new ArrayList<>();
 
@@ -107,6 +108,7 @@ public class TombManyGravesConfigs {
         ALLOW_EYDAMOS_BACKPACKS = config.get("compatibility", "allowEydamosBackpacks", true, "If set to false, the grave will not grab any of the player's Eydamos backpack inventory. (Defaults to true)").getBoolean();
         ALLOW_THUT_WEARABLES = config.get("compatibility", "allowThutWearables", true, "If set to false, the grave will not grab any of the player's Thut's Wearables inventory. (Defaults to true)").getBoolean();
         ALLOW_COSMETIC_ARMOR = config.get("compatibility", "allowCosmeticArmor", true, "If set to false, the grave will not grab any of the player's Cosmetic Armor inventory. (Defaults to true)").getBoolean();
+        ALLOW_IRON_BACKPACKS = config.get("compatibility", "allowIronBackpacks", true, "If set to false, the grave will not attempt to grab the player's equiped Iron Backpack. (Defaults to true)").getBoolean();
 
         int[] temp;
         temp = config.get("compatibility", "blacklistedPlayerInventory", new int[]{}, "A list of slots from the player's inventory to ignore upon death. (Defaults to nothing).").getIntList();
