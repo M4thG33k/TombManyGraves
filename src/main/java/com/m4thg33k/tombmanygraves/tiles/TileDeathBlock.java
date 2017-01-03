@@ -491,7 +491,6 @@ public class TileDeathBlock extends TileEntity {
 
     public void swapIronBackpacks(EntityPlayer player)
     {
-        LogHelper.info("DEBUG LINE");
         ItemStack savedBackpack = ItemStack.loadItemStackFromNBT(ironBackpackSlotNBT);
         if (savedBackpack != null && savedBackpack.stackSize > 0)
         {
