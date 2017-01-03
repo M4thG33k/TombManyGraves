@@ -892,6 +892,30 @@ public class TileDeathBlock extends TileEntity {
                 return true;
             }
         }
+
+        if (stack.hasTagCompound())
+        {
+            NBTTagCompound tagCompound = stack.getTagCompound();
+            if (tagCompound.hasKey("TinkerData")) //adding compat for Tinkers Construct soulbound modifier
+            {
+                tagCompound = tagCompound.getCompoundTag("TinkerData");
+                if (tagCompound.hasKey("Modifiers"))
+                {
+                    NBTTagList modifiers = tagCompound.getTagList("Modifiers", 8);
+                    for (int i=0; i < modifiers.tagCount(); i++)
+                    {
+                        if ("soulbound".equals(modifiers.getStringTagAt(i)))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            else if (tagCompound.hasKey("spectreAnchor")) //adding compat for Random Things' spectre anchor
+            {
+                return true;
+            }
+        }
         return false;
     }
 
