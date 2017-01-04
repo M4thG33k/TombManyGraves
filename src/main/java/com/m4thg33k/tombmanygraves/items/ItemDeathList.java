@@ -1,11 +1,16 @@
 package com.m4thg33k.tombmanygraves.items;
 
 import com.m4thg33k.tombmanygraves.TombManyGraves;
+import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import com.m4thg33k.tombmanygraves.gui.TombManyGravesGuiHandler;
 import com.m4thg33k.tombmanygraves.lib.Names;
+import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -14,7 +19,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.util.vector.Vector;
+import org.lwjgl.util.vector.Vector3f;
 
+import javax.vecmath.Vector3d;
 import java.util.List;
 
 public class ItemDeathList extends Item {
@@ -60,5 +68,72 @@ public class ItemDeathList extends Item {
         {
             tooltip.add(TextFormatting.ITALIC + "<Control for command>");
         }
+    }
+
+    //code for this and used methods borrowed lovingly from Yrsegal's Natural Pledge
+    @Override
+    public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+        if (!worldIn.isRemote || !(entityIn instanceof EntityLivingBase) || (((EntityLivingBase) entityIn).getHeldItemMainhand() != stack && ((EntityLivingBase) entityIn).getHeldItemOffhand() != stack))// || !entityIn.isSneaking())
+        {
+            return;
+        }
+
+        if (TombManyGravesConfigs.REQUIRE_SNEAK_FOR_PATH && !entityIn.isSneaking())
+        {
+            return;
+        }
+
+        Vector3f startVector = new Vector3f((float)entityIn.posX, (float)(entityIn.posY - entityIn.getYOffset() /*+ entityIn.height*0.05*/), (float)entityIn.posZ);
+        Vector3f dirVector = getDirectionalVector(stack, entityIn, startVector);
+        if (dirVector == null || dirVector.length() == 0)
+        {
+            return;
+        }
+
+        Vector3f normed = dirVector.normalise(null);
+        float length = Math.min(100, dirVector.length());
+        Vector3f endVector = Vector3f.add(new Vector3f(normed.x*length, normed.y*length, normed.z*length), startVector, null);
+
+        TombManyGraves.proxy.particleStream(startVector, endVector);
+    }
+
+    private Vector3f getDirectionalVector(ItemStack stack, Entity entity, Vector3f entityPos)
+    {
+        Vector3f end = getEndVector(stack);
+
+        if (end == null)
+        {
+            return null;
+        }
+
+        return Vector3f.sub(entityPos, end, null);
+
+    }
+
+    private Vector3f getEndVector(ItemStack stack)
+    {
+        if (stack == null || stack.stackSize == 0 || !stack.hasTagCompound())
+        {
+            return null;
+        }
+
+        NBTTagCompound compound = stack.getTagCompound();
+
+        if (compound.hasKey("Misc"))
+        {
+            compound = compound.getCompoundTag("Misc");
+            float  x = compound.getInteger("x")+0.5f;
+            float y = (compound.getInteger("y"))+0.5f;
+            float z = (compound.getInteger("z"))+0.5f;
+
+            if (y < 0)
+            {
+                return null;
+            }
+
+            return new Vector3f(x,y,z);
+        }
+
+        return null;
     }
 }

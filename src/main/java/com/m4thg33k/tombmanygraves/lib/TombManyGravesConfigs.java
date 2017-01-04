@@ -1,11 +1,11 @@
 package com.m4thg33k.tombmanygraves.lib;
 
+import com.m4thg33k.tombmanygraves.core.handlers.NBTBlacklistHandler;
+import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
 public class TombManyGravesConfigs {
 
@@ -49,6 +49,11 @@ public class TombManyGravesConfigs {
     public static boolean ALLOW_IRON_BACKPACKS;
 
     public static ArrayList<Integer> BLACKLISTED_PLAYER_INVENTORY = new ArrayList<>();
+    public static ArrayList<String> BLACKLISTED_ITEMS_AS_STRINGS = new ArrayList<>();
+    public static HashMap<String, Integer> BLACKLISTED_ENCHANTMENTS = new HashMap<>();
+
+    public static boolean ALLOW_PARTICLE_PATH;
+    public static boolean REQUIRE_SNEAK_FOR_PATH;
 
     public static void preInit(FMLPreInitializationEvent event)
     {
@@ -99,6 +104,9 @@ public class TombManyGravesConfigs {
             GRAVE_SKULL_RENDER_TYPE = 3;
         }
 
+        ALLOW_PARTICLE_PATH = config.get("Effects", "allowParticlePath", true, "If set to false, the item lists will not show the way to its grave. (Defaults to true.)").getBoolean();
+        REQUIRE_SNEAK_FOR_PATH = config.get("Effects", "requireSneakForPath", false, "If set to true, the death lists will only show their particles when the player is sneaking. (Defaults to false.)").getBoolean();
+
         ASCEND_LIQUID = config.get("Graves","ascendLiquid",false,"Setting this to true will have the grave try to place itself above bodies of liquid (water, lava, etc...). If a valid location is not found at the top, it will still attempt to place the grave near the actual location of death. (Defaults to false)").getBoolean();
 
 
@@ -118,6 +126,53 @@ public class TombManyGravesConfigs {
             BLACKLISTED_PLAYER_INVENTORY.add(val);
         }
 
+        String[] tempStrings;
+        tempStrings = config.get("compatibility", "blacklistedItems", new String[]{"tombmanygraves:DeathList","botanicaladdons:deathStone"}, "Any items in this list will not be gathered by any grave that forms. DO NOT remove tombmanygraves:DeathList from the blacklist; Doing such can cause graves to become too large and corrupt your world.").getStringList();
+
+        BLACKLISTED_ITEMS_AS_STRINGS.addAll(Arrays.asList(tempStrings));
+
+        tempStrings = config.get("compatibility", "blacklistedEnchantments", new String[]{"enderio:soulBound#0"}, "Any item with an enchantment in this list will not be gathered by any grave (above the minimum level). The format is [registry_name_as_resource_location]#[minimum_accepted_level].").getStringList();
+
+        constructBlacklistedEnchantments(tempStrings);
+
+//        tempStrings = config.get("compatibility", "blacklistedNBTTags", new String[]{"10,TinkerData,9,Modifiers,8,soulbound"}, "Any item with any of the NBT tags in this list will not be gathered by the graves.").getStringList();
+//        List<String> moreTempStrings = new ArrayList<>();
+//        moreTempStrings.addAll(Arrays.asList(tempStrings));
+//        NBTBlacklistHandler.generateBlacklist(moreTempStrings);
+
         config.save();
+    }
+
+    private static void constructBlacklistedEnchantments(String[] theList)
+    {
+        for (String entry : theList)
+        {
+            int hash = entry.indexOf("#");
+            if (hash < 1)
+            {
+                LogHelper.warn("Enchantment blacklist failed for: " + entry);
+                LogHelper.warn("Check the format in the configs!");
+                continue;
+            }
+
+            try {
+                String name = entry.substring(0,hash);
+                int minVal = Integer.parseInt(entry.substring(hash+1,entry.length()));
+                if (BLACKLISTED_ENCHANTMENTS.containsKey(name))
+                {
+                    LogHelper.warn("Enchantment blacklist already contains data for: " + entry);
+                    LogHelper.warn("Skipping this datapoint.");
+                    continue;
+                }
+                else
+                {
+                    BLACKLISTED_ENCHANTMENTS.put(name, minVal);
+                }
+            } catch (Exception e)
+            {
+                LogHelper.warn("Enchantment blacklist faild for: " + entry);
+                LogHelper.warn("Check the format in the configs!");
+            }
+        }
     }
 }

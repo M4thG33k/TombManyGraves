@@ -11,6 +11,7 @@ import com.m4thg33k.tombmanygraves.tiles.TileDeathBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -21,9 +22,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TombManyGravesCommonEvents {
 
@@ -216,6 +221,19 @@ public class TombManyGravesCommonEvents {
         if (item == Item.getItemFromBlock(ModBlocks.blockDeath) || item == ModItems.itemDeathList)
         {
             event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void itemDrop(PlayerDropsEvent event)
+    {
+        List<EntityItem> items = event.getDrops();
+        for (EntityItem item : items)
+        {
+            if (item.getEntityItem().getItem() == ModItems.itemDeathList)
+            {
+                item.setDead();
+            }
         }
     }
 

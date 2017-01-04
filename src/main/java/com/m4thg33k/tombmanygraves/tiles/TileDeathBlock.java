@@ -5,7 +5,6 @@ import com.m4thg33k.tombmanygraves.blocks.BlockDeath;
 import com.m4thg33k.tombmanygraves.core.handlers.BaubleHandler;
 import com.m4thg33k.tombmanygraves.core.handlers.FriendHandler;
 import com.m4thg33k.tombmanygraves.core.util.ChatHelper;
-import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import com.m4thg33k.tombmanygraves.lib.TombManyGravesConfigs;
 import de.eydamos.backpack.data.PlayerSave;
 import gr8pefish.ironbackpacks.api.items.backpacks.interfaces.IBackpack;
@@ -173,7 +172,7 @@ public class TileDeathBlock extends TileEntity {
         {
             equippedPack.writeToNBT(ironBackpackSlotNBT);
             PlayerWearingBackpackCapabilities.setEquippedBackpack(player, null);
-            LogHelper.info("NULLIFYING BACKPACK!");
+//            LogHelper.info("NULLIFYING BACKPACK!");
 
 
         }
@@ -186,6 +185,16 @@ public class TileDeathBlock extends TileEntity {
         {
             return false;
         }
+
+        if (TombManyGraves.ITEM_BLACK_LIST_HANDLER.isBlacklisted(stack))
+        {
+            return false;
+        }
+
+//        if (hasInvalidEnchantment(stack))
+//        {
+//            return false;
+//        }
         boolean notSoulbound = !hasSoulboundEnchantment(stack);
         boolean isBook = (stack.getItem() == Items.ENCHANTED_BOOK);
         return isBook || notSoulbound;
@@ -526,7 +535,7 @@ public class TileDeathBlock extends TileEntity {
 
     public void replaceIronBackpacks(EntityPlayer player)
     {
-        LogHelper.info("DEBUG LINE REPLACE IRON BACKPACK");
+//        LogHelper.info("DEBUG LINE REPLACE IRON BACKPACK");
         ItemStack savedBackpack = ItemStack.loadItemStackFromNBT(ironBackpackSlotNBT);
         if (savedBackpack != null && savedBackpack.stackSize > 0)
         {
@@ -864,6 +873,26 @@ public class TileDeathBlock extends TileEntity {
         renderGround = !(camoState == null || camoState.getBlock() instanceof BlockDeath);
     }
 
+    public static boolean hasInvalidEnchantment(ItemStack stack)
+    {
+        if (stack == null || stack.stackSize == 0)
+        {
+            return false;
+        }
+
+        Map<Enchantment, Integer> enchantMap = EnchantmentHelper.getEnchantments(stack);
+        for (Enchantment enchantment : enchantMap.keySet())
+        {
+            String enchantName = enchantment.getRegistryName().toString();
+            if (TombManyGravesConfigs.BLACKLISTED_ENCHANTMENTS.containsKey(enchantName) && TombManyGravesConfigs.BLACKLISTED_ENCHANTMENTS.get(enchantName) < enchantMap.get(enchantment))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static boolean hasSoulboundEnchantment(ItemStack stack)
     {
         if (stack == null || stack.stackSize == 0)
@@ -871,18 +900,11 @@ public class TileDeathBlock extends TileEntity {
             return false;
         }
 
-        if (TombManyGraves.isEnderIOInstalled)
+        if (hasInvalidEnchantment(stack))
         {
-            Map<Enchantment, Integer> enchantMap = EnchantmentHelper.getEnchantments(stack);
-            for (Enchantment enchantment : enchantMap.keySet())
-            {
-                //LogHelper.info(enchantment.getName());
-                if (enchantment.getName().equals("enchantment.soulBound"))
-                {
-                    return enchantMap.get(enchantment) > 0;
-                }
-            }
+            return true;
         }
+
 
         if (TombManyGraves.isIronBackpacksInstalled)
         {

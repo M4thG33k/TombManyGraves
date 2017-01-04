@@ -2,6 +2,7 @@ package com.m4thg33k.tombmanygraves;
 
 import com.m4thg33k.tombmanygraves.blocks.ModBlocks;
 import com.m4thg33k.tombmanygraves.core.commands.*;
+import com.m4thg33k.tombmanygraves.core.handlers.ItemBlackListHandler;
 import com.m4thg33k.tombmanygraves.core.proxy.CommonProxy;
 import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import net.minecraft.item.ItemStack;
@@ -20,6 +21,8 @@ public class TombManyGraves {
     public static final String MODID = "tombmanygraves";
     public static final String VERSION = "@VERSION@";
     public static final String MODNAME = "TombManyGraves";
+
+    public static ItemBlackListHandler ITEM_BLACK_LIST_HANDLER;
 
     public static boolean isBaublesInstalled = false;
     public static boolean isEnderIOInstalled = false;
@@ -69,6 +72,8 @@ public class TombManyGraves {
         LogHelper.info("Eydamos's Backpacks is " + (isExpandableBackpacksInstalled ? "" : "NOT " ) + "installed.");
         LogHelper.info("Thut Wearables is " + (isThutWearablesInstalled ? "" : "NOT ") + "installed.");
         LogHelper.info("Iron Backpacks is " + (isIronBackpacksInstalled ? "" : "NOT ") + "installed.");
+
+        ITEM_BLACK_LIST_HANDLER = new ItemBlackListHandler();
     }
 
     @Mod.EventHandler
