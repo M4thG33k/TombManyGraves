@@ -5,6 +5,7 @@ import com.m4thg33k.tombmanygraves.core.util.LogHelper;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
+import java.awt.*;
 import java.util.*;
 
 public class TombManyGravesConfigs {
@@ -56,6 +57,9 @@ public class TombManyGravesConfigs {
     public static boolean REQUIRE_SNEAK_FOR_PATH;
 
     public static boolean ALLOW_INVENTORY_LISTS;
+
+    public static Color FAR_PARTICLE;
+    public static Color NEAR_PARTICLE;
 
     public static void preInit(FMLPreInitializationEvent event)
     {
@@ -139,6 +143,25 @@ public class TombManyGravesConfigs {
 
         ALLOW_INVENTORY_LISTS = config.get("Inventory", "allowInventoryLists", true, "If set to false, death " +
                 "inventory lists will NOT be spawned in when a player respawns after death. (Defaults to true").getBoolean();
+
+        try {
+            FAR_PARTICLE = new Color(Integer.decode(config.get("Effects", "farParticleColor", "0x000000", "This is the color of the path particles " +
+                    "spawned by the death inventory list when you are more than 100 blocks from the grave. " +
+                    "(Defaults to 0x000000").getString()));
+        }
+        catch (Exception e)
+        {
+            FAR_PARTICLE = Color.BLACK;
+        }
+
+        try {
+            NEAR_PARTICLE = new Color(Integer.decode(config.get("Effects", "nearParticleColor", "0xFFFFFF", "This is the color of the path particles " +
+                    "spawned by the inventory list when you are withing 10 blocks of the grave. (Defaults to 0xFFFFFF.)").getString()));
+        }
+        catch (Exception e)
+        {
+            NEAR_PARTICLE = Color.white;
+        }
 
 //        tempStrings = config.get("compatibility", "blacklistedNBTTags", new String[]{"10,TinkerData,9,Modifiers,8,soulbound"}, "Any item with any of the NBT tags in this list will not be gathered by the graves.").getStringList();
 //        List<String> moreTempStrings = new ArrayList<>();
