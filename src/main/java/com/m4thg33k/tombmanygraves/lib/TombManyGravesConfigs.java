@@ -55,6 +55,8 @@ public class TombManyGravesConfigs {
     public static boolean ALLOW_PARTICLE_PATH;
     public static boolean REQUIRE_SNEAK_FOR_PATH;
 
+    public static boolean ALLOW_INVENTORY_LISTS;
+
     public static void preInit(FMLPreInitializationEvent event)
     {
         config = new Configuration(event.getSuggestedConfigurationFile());
@@ -135,6 +137,9 @@ public class TombManyGravesConfigs {
 
         constructBlacklistedEnchantments(tempStrings);
 
+        ALLOW_INVENTORY_LISTS = config.get("Inventory", "allowInventoryLists", true, "If set to false, death " +
+                "inventory lists will NOT be spawned in when a player respawns after death. (Defaults to true").getBoolean();
+
 //        tempStrings = config.get("compatibility", "blacklistedNBTTags", new String[]{"10,TinkerData,9,Modifiers,8,soulbound"}, "Any item with any of the NBT tags in this list will not be gathered by the graves.").getStringList();
 //        List<String> moreTempStrings = new ArrayList<>();
 //        moreTempStrings.addAll(Arrays.asList(tempStrings));
@@ -170,7 +175,7 @@ public class TombManyGravesConfigs {
                 }
             } catch (Exception e)
             {
-                LogHelper.warn("Enchantment blacklist faild for: " + entry);
+                LogHelper.warn("Enchantment blacklist failed for: " + entry);
                 LogHelper.warn("Check the format in the configs!");
             }
         }

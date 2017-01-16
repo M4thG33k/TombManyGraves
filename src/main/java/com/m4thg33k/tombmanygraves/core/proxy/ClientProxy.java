@@ -50,7 +50,6 @@ public class ClientProxy extends CommonProxy {
         float length = diff.length();
         float scale = diff.length() < 5 ? 10 : diff.length();
         Vector3f motion = new Vector3f(diff.x/scale, diff.y/scale, diff.z/scale);
-        Color color = Color.black;
 
         float r = (length < 10 ? 1 : (length > 100 ? 0 : (-length/90f + 10/9f)));  //color.getRed() / 255f;
         float g = (length < 10 ? 1 : (length > 100 ? 0 : (-length/90f + 10/9f)));//color.getGreen() / 255f;

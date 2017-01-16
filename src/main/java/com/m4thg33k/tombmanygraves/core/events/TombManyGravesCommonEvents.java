@@ -217,9 +217,15 @@ public class TombManyGravesCommonEvents {
     @SubscribeEvent
     public void itemToss(ItemTossEvent event)
     {
-        Item item = event.getEntityItem().getEntityItem().getItem();
+        if (event.isCanceled())
+        {
+            return;
+        }
+        EntityItem entityItem = event.getEntityItem();
+        Item item = entityItem.getEntityItem().getItem();
         if (item == Item.getItemFromBlock(ModBlocks.blockDeath) || item == ModItems.itemDeathList)
         {
+            entityItem.setDead();
             event.setCanceled(true);
         }
     }
@@ -230,7 +236,7 @@ public class TombManyGravesCommonEvents {
         List<EntityItem> items = event.getDrops();
         for (EntityItem item : items)
         {
-            if (item.getEntityItem().getItem() == ModItems.itemDeathList)
+            if (item.getEntityItem().getItem() == ModItems.itemDeathList || item.getEntityItem().getItem() == Item.getItemFromBlock(ModBlocks.blockDeath))
             {
                 item.setDead();
             }
@@ -240,7 +246,7 @@ public class TombManyGravesCommonEvents {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPlayerClone(PlayerEvent.Clone event)
     {
-        if (!event.isCanceled() && !event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && TombManyGravesConfigs.ALLOW_INVENTORY_SAVES && !(event.getEntityLiving().worldObj.isRemote) && event.isWasDeath())
+        if (TombManyGravesConfigs.ALLOW_INVENTORY_LISTS && !event.isCanceled() && !event.getEntityLiving().worldObj.getGameRules().getBoolean("keepInventory") && TombManyGravesConfigs.ALLOW_INVENTORY_SAVES && !(event.getEntityLiving().worldObj.isRemote) && event.isWasDeath())
         {
             DeathInventoryHandler.getDeathList(event.getEntityPlayer(), event.getEntityPlayer().getName(), "latest");
         }
